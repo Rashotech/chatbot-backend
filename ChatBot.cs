@@ -1,4 +1,4 @@
-﻿// Generated with EmptyBot .NET Template version v4.22.0
+﻿// Generated with ChatBot .NET Template version v4.22.0
 
 using System.Collections.Generic;
 using System.Threading;
@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 
-namespace EmptyBot
+namespace ChatBot
 {
-    public class EmptyBot : ActivityHandler
+    public class ChatBot : ActivityHandler
     {
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {

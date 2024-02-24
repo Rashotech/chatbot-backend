@@ -1,4 +1,4 @@
-﻿// Generated with EmptyBot .NET Template version v4.22.0
+﻿// Generated with ChatBot .NET Template version v4.22.0
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace EmptyBot
+namespace ChatBot
 {
     public class Startup
     {
@@ -35,7 +35,7 @@ namespace EmptyBot
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-            services.AddTransient<IBot, EmptyBot>();
+            services.AddTransient<IBot, ChatBot>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,11 +1,11 @@
-﻿// Generated with EmptyBot .NET Template version v4.22.0
+﻿// Generated with ChatBot .NET Template version v4.22.0
 
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Builder.TraceExtensions;
 using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Extensions.Logging;
 
-namespace EmptyBot
+namespace ChatBot
 {
     public class AdapterWithErrorHandler : CloudAdapter
     {

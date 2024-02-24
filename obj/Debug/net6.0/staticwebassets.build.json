@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "Hash": "4wITo1SqDytwD0QPqYMxCSZIxNZ5emxa+yZA+Na/Lg8=",
+  "Source": "ChatBot",
+  "BasePath": "_content/ChatBot",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "ChatBot/wwwroot",
+      "Source": "ChatBot",
+      "ContentRoot": "/Users/Rashotech/Documents/Client/FBN/Project/fbnachatbot/wwwroot/",
+      "BasePath": "_content/ChatBot",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "/Users/Rashotech/Documents/Client/FBN/Project/fbnachatbot/wwwroot/default.htm",
+      "SourceId": "ChatBot",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/Rashotech/Documents/Client/FBN/Project/fbnachatbot/wwwroot/",
+      "BasePath": "_content/ChatBot",
+      "RelativePath": "default.htm",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/default.htm"
+    }
+  ]
+}

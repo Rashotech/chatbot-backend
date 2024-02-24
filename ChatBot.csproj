@@ -6,6 +6,7 @@
   </PropertyGroup>
 
 
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'ChatBot' " />
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
     <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.22.0" />
@@ -18,4 +19,12 @@
   </ItemGroup>
 
 
+  <ItemGroup>
+    <None Remove="Models\" />
+    <None Remove="Models\Entity\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <Folder Include="Models\Entity\" />
+  </ItemGroup>
 </Project>
