@@ -35,6 +35,8 @@
     <None Remove="Repositories\Interfaces\" />
     <None Remove="Services\" />
     <None Remove="Services\Interfaces\" />
+    <None Remove="Dtos\" />
+    <None Remove="Utils\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />
@@ -43,5 +45,7 @@
     <Folder Include="Repositories\Interfaces\" />
     <Folder Include="Services\" />
     <Folder Include="Services\Interfaces\" />
+    <Folder Include="Dtos\" />
+    <Folder Include="Utils\" />
   </ItemGroup>
 </Project>

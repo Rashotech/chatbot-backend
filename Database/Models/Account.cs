@@ -21,6 +21,8 @@ namespace ChatBot.Database.Models
         [ForeignKey("CustomerId")]
         public Customer Customer { get; set; }
 
+        public string Currency { get; set; } = "NGN";
+
         public int Balance { get; set; } = 0;
 
         public ICollection<Transaction> Transactions { get; set; }
