@@ -8,6 +8,8 @@ using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using ChatBot.Database;
 
 namespace ChatBot
 {
@@ -27,6 +29,10 @@ namespace ChatBot
             {
                 options.SerializerSettings.MaxDepth = HttpHelper.BotMessageSerializerSettings.MaxDepth;
             });
+
+            services.AddDbContext<BankDbContext>(options => options.UseSqlServer(
+                Configuration.GetConnectionString("default")
+            ));
 
             // Create the Bot Framework Authentication to be used with the Bot Adapter.
             services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
