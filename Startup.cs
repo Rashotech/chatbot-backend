@@ -10,6 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ChatBot.Database;
+using ChatBot.Repositories.Interfaces;
+using ChatBot.Repositories;
+using ChatBot.Services;
+using ChatBot.Services.Interfaces;
 
 namespace ChatBot
 {
@@ -30,9 +34,17 @@ namespace ChatBot
                 options.SerializerSettings.MaxDepth = HttpHelper.BotMessageSerializerSettings.MaxDepth;
             });
 
-            services.AddDbContext<BankDbContext>(options => options.UseSqlServer(
-                Configuration.GetConnectionString("default")
-            ));
+            services.AddDbContext<BankDbContext>(options => options
+            .UseSqlServer(Configuration.GetConnectionString("default"))
+               .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+            );
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Application Services
+            // services.AddScoped<ICustomerService, CustomerService>();
+            //services.AddScoped<IAccountService, AccountService>();
+            //services.AddScoped<ITransactionService, TransactionService>();
 
             // Create the Bot Framework Authentication to be used with the Bot Adapter.
             services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
