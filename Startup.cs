@@ -42,9 +42,9 @@ namespace ChatBot
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Application Services
-            // services.AddScoped<ICustomerService, CustomerService>();
-            //services.AddScoped<IAccountService, AccountService>();
-            //services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<ITransactionService, TransactionService>();
 
             // Create the Bot Framework Authentication to be used with the Bot Adapter.
             services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
