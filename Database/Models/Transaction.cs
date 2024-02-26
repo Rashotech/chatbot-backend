@@ -23,6 +23,8 @@ namespace ChatBot.Database.Models
         [Required]
         public TransactionChannel Channel { get; set; }
 
+        public TransactionStatus Status { get; set; } = TransactionStatus.Pending;
+
         [Required]
         public int Amount { get; set; }
 
@@ -39,6 +41,14 @@ namespace ChatBot.Database.Models
     {
         Credit,
         Debit
+    }
+
+    public enum TransactionStatus
+    {
+        Pending,
+        Successful,
+        Failed,
+        Reversed
     }
 
     public enum TransactionType
