@@ -35,6 +35,8 @@ namespace ChatBot.Database.Models
         public string RecipientBankCode { get; set; }
 
         public string RecipientName { get; set; }
+
+        public string RecipientBankName { get; set; }
     }
 
     public enum TransactionDirection
@@ -62,6 +64,7 @@ namespace ChatBot.Database.Models
     {
         ATM,
         Branch,
+        ChatBot,
         Mobile,
         USSD,
         Web,
