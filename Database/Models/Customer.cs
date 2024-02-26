@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ChatBot.Database.Models
 {
@@ -43,6 +44,7 @@ namespace ChatBot.Database.Models
         [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
 
+        [JsonIgnore]
         public ICollection<Account> Accounts { get; set; }
     }
 }

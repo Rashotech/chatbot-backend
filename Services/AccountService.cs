@@ -48,6 +48,44 @@ namespace ChatBot.Services
             return account;
         }
 
+        public async Task<bool> DebitAccountAsync(int accountId, decimal amount)
+        {
+            try
+            {
+                // Retrieve the account from the database
+                var account = await _unitOfWork.Accounts.GetSingleAccount(accountId);
+
+                // Ensure that the account exists
+                if (account == null)
+                    throw new ArgumentException("Account not found", nameof(accountId));
+
+                // Verify if the account has sufficient balance
+                if (account.Balance < amount * 100) // Assuming the balance is stored in cents
+                    throw new InvalidOperationException("Insufficient balance");
+
+                // Perform the debit operation
+                account.Balance -= (int)(amount * 100); // Deducting the amount from the balance
+
+                // Update the account balance in the database
+                _unitOfWork.Accounts.Update(account);
+                await _unitOfWork.CommitAsync();
+
+                return true; // Debit operation successful
+            }
+            catch (Exception)
+            {
+                throw; // Propagate the exception
+            }
+        }
+
+        public async Task<Customer> GetAccountByAccountNumber(string accountNumber)
+        {
+            var account = await _unitOfWork.Accounts.GetAccountByAccountNumber(accountNumber);
+            if (account == null) throw new ArgumentException("Account not found", nameof(accountNumber));
+            var customer = await _customerService.GetCustomerInfoAsync(account.Id);
+            return customer;
+        }
+
         public async Task<GetBalanceDto> GetAccountBalanceAsync(int accountId)
         {
             try
@@ -66,7 +104,7 @@ namespace ChatBot.Services
                 throw;
             }
            
-        } 
+        }
     }
 }
 

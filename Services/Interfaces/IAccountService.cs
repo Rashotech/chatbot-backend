@@ -9,6 +9,8 @@ namespace ChatBot.Services.Interfaces
 	{
         Task<Account> OpenAccountAsync(OpenAccountDto openAccountDto);
         Task<GetBalanceDto> GetAccountBalanceAsync(int accountId);
+        Task<bool> DebitAccountAsync(int accountId, decimal amount);
+        Task<Customer> GetAccountByAccountNumber(string accountNumber);
     }
 }
 

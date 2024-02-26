@@ -9,6 +9,7 @@ namespace ChatBot.Repositories.Interfaces
     {
         Task<List<Account>> GetAllAccountsByUserId(int customerId);
         Task<Account> GetSingleAccount(int accountId);
+        Task<Account> GetAccountByAccountNumber(string accountNumber);
     }
 }
 

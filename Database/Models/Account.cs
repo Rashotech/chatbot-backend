@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ChatBot.Database.Models
 {
@@ -25,6 +26,7 @@ namespace ChatBot.Database.Models
 
         public int Balance { get; set; } = 0;
 
+        [JsonIgnore]
         public ICollection<Transaction> Transactions { get; set; }
     }
 
