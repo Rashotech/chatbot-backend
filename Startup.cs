@@ -1,5 +1,6 @@
 ﻿// Generated with ChatBot .NET Template version v4.22.0
 
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder;
@@ -45,6 +46,14 @@ namespace ChatBot
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
+
+            services.AddHttpClient("Paystack", client =>
+            {
+                client.BaseAddress = new Uri(Configuration["Paystack:BaseUrl"]);
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Configuration["Paystack:SecretKey"]}");
+            });
+
+            services.AddScoped<IPaymentProvider, PaystackPaymentProvider>();
 
             // Create the Bot Framework Authentication to be used with the Bot Adapter.
             services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
