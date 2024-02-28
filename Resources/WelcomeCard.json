@@ -1,0 +1,53 @@
+﻿{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.3",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Fibani I am your virtual assistant",
+      "size": "medium",
+      "weight": "bolder",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Hello! Welcome to FirstBank. I’m Fibani, your virtual assistant. How can I help you?",
+      "wrap": true
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Open Account",
+      "verb": "OPEN_ACCOUNT",
+      "data": {
+        "action": "OPEN_ACCOUNT"
+      }
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Balance Enquiry"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Fund Transfer"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Transaction History"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Log Complaint"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Branch Locator"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "FAQ"
+    }
+  ]
+}
