@@ -15,6 +15,8 @@ using ChatBot.Repositories.Interfaces;
 using ChatBot.Repositories;
 using ChatBot.Services;
 using ChatBot.Services.Interfaces;
+using ChatBot.Dialogs;
+using ChatBot.Bots;
 
 namespace ChatBot
 {
@@ -24,6 +26,8 @@ namespace ChatBot
         {
             Configuration = configuration;
         }
+
+        private string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
         public IConfiguration Configuration { get; }
 
@@ -61,8 +65,37 @@ namespace ChatBot
             // Create the Bot Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
+            // Create the storage we'll be using for User and Conversation state. (Memory is great for testing purposes.)
+            services.AddSingleton<IStorage, MemoryStorage>();
+
+            // Create the User state. (Used in this bot's Dialog implementation.)
+            services.AddSingleton<UserState>();
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                                  policy =>
+                                  {
+                                      policy
+                                      .AllowAnyOrigin()
+                                        .AllowAnyHeader()
+                                        .AllowAnyMethod();
+            });
+            });
+
+            // Create the Conversation state. (Used by the Dialog system itself.)
+            services.AddSingleton<ConversationState>();
+
+            // Register LUIS recognizer
+            services.AddSingleton<BankOperationRecognizer>();
+
+            // Register the BookingDialog.
+            services.AddScoped<OpenAccounDialog>();
+
+            services.AddScoped<MainDialog>();
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-            services.AddTransient<IBot, ChatBot>();
+
+            services.AddTransient<IBot, DialogAndWelcomeBot<MainDialog>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -77,6 +110,7 @@ namespace ChatBot
                 .UseStaticFiles()
                 .UseWebSockets()
                 .UseRouting()
+                .UseCors(MyAllowSpecificOrigins)
                 .UseAuthorization()
                 .UseEndpoints(endpoints =>
                 {
