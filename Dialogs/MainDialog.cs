@@ -18,7 +18,12 @@ namespace ChatBot.Dialogs
         private readonly BankOperationRecognizer _cluRecognizer;
         protected readonly ILogger Logger;
 
-        public MainDialog(BankOperationRecognizer cluRecognizer, OpenAccounDialog openAccounDialog, ILogger<MainDialog> logger)
+        public MainDialog(
+            BankOperationRecognizer cluRecognizer,
+            OpenAccounDialog openAccounDialog,
+            AuthDialog authDialog,
+            ILogger<MainDialog> logger
+        )
             : base(nameof(MainDialog))
         {
             _cluRecognizer = cluRecognizer;
@@ -26,6 +31,7 @@ namespace ChatBot.Dialogs
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(openAccounDialog);
+            AddDialog(authDialog);
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 IntroStepAsync,
@@ -68,6 +74,8 @@ namespace ChatBot.Dialogs
                 {
                     case nameof(BankOperationIntent.OpenAccount):
                         return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), new OpenAccountDto(), cancellationToken);
+                    case nameof(BankOperationIntent.CheckBalance):
+                        return await stepContext.BeginDialogAsync(nameof(AuthDialog), null, cancellationToken);
 
                     default:
                         // Catch all for unhandled intents
