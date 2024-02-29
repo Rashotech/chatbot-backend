@@ -11,18 +11,18 @@ namespace ChatBot.Dialogs
 {
     public class CheckAccountBalanceDialog : CancelAndHelpDialog
     {
+        private readonly IStatePropertyAccessor<Account> _accountInfoAccessor;
         private readonly IAccountService _accountService;
-        private readonly ICustomerService _customerService;
-
         public CheckAccountBalanceDialog(
             IAccountService accountService,
             ICustomerService customerService,
-            AuthDialog authDialog
+            AuthDialog authDialog,
+            UserState userState
         )
      : base(nameof(CheckAccountBalanceDialog))
         {
             _accountService = accountService;
-            _customerService = customerService;
+            _accountInfoAccessor = userState.CreateProperty<Account>("Account");
             AddDialog(authDialog);
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -39,16 +39,12 @@ namespace ChatBot.Dialogs
             return await stepContext.BeginDialogAsync(nameof(AuthDialog), null, cancellationToken);
         }
 
-
-
-
-
-
         private async Task<DialogTurnResult> DisplayAccountBalance(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             try
             {
-                var balance = await _accountService.GetAccountBalanceAsync(1);
+                var account = _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
+                var balance = await _accountService.GetAccountBalanceAsync(account.Id);
 
                 if (balance != null)
                 {
