@@ -22,7 +22,7 @@ namespace ChatBot.Dialogs
         private readonly string DataNoticeDlgId = "DataNoticeDlgId";
         private bool hasAcceptedDataNotice = false;
 
-        public AuthDialog(IAccountService accountService, ICustomerService customerService, ConversationState conversationState)
+        public AuthDialog(IAccountService accountService, ICustomerService customerService)
         : base(nameof(AuthDialog))
         {
             _accountService = accountService;
