@@ -69,6 +69,10 @@ namespace ChatBot.Dialogs
                     case nameof(BankOperationIntent.OpenAccount):
                         return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), new OpenAccountDto(), cancellationToken);
 
+                    case nameof(BankOperationIntent.GetTransactionHistory):
+                        return await stepContext.BeginDialogAsync(nameof(GetTransactionHistoryDialog), new TransactionDto(), cancellationToken);
+
+
                     default:
                         // Catch all for unhandled intents
                         var didntUnderstandMessageText = $"Sorry, I didn't get that. Please try asking in a different way)";
@@ -90,6 +94,9 @@ namespace ChatBot.Dialogs
 
                     case BankOperation.Intent.LogComplaints:
                         return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), null, cancellationToken);
+
+                    case BankOperation.Intent.TransactionHistory:
+                        return await stepContext.BeginDialogAsync(nameof(GetTransactionHistoryDialog), null, cancellationToken);
 
                     default:
                         // Catch all for unhandled intents

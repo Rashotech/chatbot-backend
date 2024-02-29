@@ -82,6 +82,11 @@ namespace ChatBot.Services
 
             return $"{prefix}{timestampPart}{randomPart}";
         }
+
+        public Task GetAccountTransactionsAsync(TransactionDto transactionInfo)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
