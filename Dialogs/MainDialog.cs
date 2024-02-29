@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using ChatBot.CognitiveModels;
+﻿using ChatBot.CognitiveModels;
 using ChatBot.Dtos;
 using ChatBot.Models;
 using Microsoft.Bot.Builder;
@@ -10,6 +6,9 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ChatBot.Dialogs
 {
@@ -21,7 +20,7 @@ namespace ChatBot.Dialogs
         public MainDialog(
             BankOperationRecognizer cluRecognizer,
             OpenAccounDialog openAccounDialog,
-            AuthDialog authDialog,
+            CheckAccountBalanceDialog checkAccountBalanceDialog,
             ILogger<MainDialog> logger
         )
             : base(nameof(MainDialog))
@@ -31,7 +30,7 @@ namespace ChatBot.Dialogs
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(openAccounDialog);
-            AddDialog(authDialog);
+            AddDialog(checkAccountBalanceDialog);
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 IntroStepAsync,
@@ -69,13 +68,13 @@ namespace ChatBot.Dialogs
 
             var message = stepContext.Context.Activity.AsMessageActivity();
             if (IsButtonClickActivity(message))
-             {
+            {
                 switch (userInput)
                 {
                     case nameof(BankOperationIntent.OpenAccount):
                         return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), new OpenAccountDto(), cancellationToken);
                     case nameof(BankOperationIntent.CheckBalance):
-                        return await stepContext.BeginDialogAsync(nameof(AuthDialog), null, cancellationToken);
+                        return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
 
                     default:
                         // Catch all for unhandled intents
@@ -83,10 +82,10 @@ namespace ChatBot.Dialogs
                         var didntUnderstandMessage = MessageFactory.Text(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
                         await stepContext.Context.SendActivityAsync(didntUnderstandMessage, cancellationToken);
                         break;
-                }    
+                }
             }
 
-            if(!_cluRecognizer.IsConfigured && userInput != null)
+            if (!_cluRecognizer.IsConfigured && userInput != null)
             {
                 var cluResult = await _cluRecognizer.RecognizeAsync<BankOperation>(stepContext.Context, cancellationToken);
                 var intent = cluResult.GetTopIntent().intent;
@@ -98,6 +97,8 @@ namespace ChatBot.Dialogs
 
                     case BankOperation.Intent.LogComplaints:
                         return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), null, cancellationToken);
+                    case BankOperation.Intent.CheckingBalance:
+                        return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
 
                     default:
                         // Catch all for unhandled intents
@@ -108,15 +109,15 @@ namespace ChatBot.Dialogs
                         break;
                 }
             }
-            
+
             return await stepContext.NextAsync(null, cancellationToken);
         }
 
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var messageText = $"Thanks for banking with us";
-                var message = MessageFactory.Text(messageText, messageText, InputHints.IgnoringInput);
-                await stepContext.Context.SendActivityAsync(message, cancellationToken);
+            var message = MessageFactory.Text(messageText, messageText, InputHints.IgnoringInput);
+            await stepContext.Context.SendActivityAsync(message, cancellationToken);
 
             var promptMessage = "What else can I do for you?";
             return await stepContext.ReplaceDialogAsync(InitialDialogId, promptMessage, cancellationToken);

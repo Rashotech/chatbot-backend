@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "4wITo1SqDytwD0QPqYMxCSZIxNZ5emxa+yZA+Na/Lg8=",
+  "Hash": "yiXtLolbKOIY8t6cOPGa+djemM0WF2TsWlocEi0RGOs=",
   "Source": "ChatBot",
   "BasePath": "_content/ChatBot",
   "Mode": "Default",
@@ -8,30 +8,32 @@
   "ReferencedProjectsConfiguration": [],
   "DiscoveryPatterns": [
     {
-      "Name": "ChatBot/wwwroot",
+      "Name": "ChatBot\\wwwroot",
       "Source": "ChatBot",
-      "ContentRoot": "/Users/Rashotech/Documents/Client/FBN/Project/fbnachatbot/wwwroot/",
+      "ContentRoot": "C:\\Users\\Samuel N. Okafor\\Documents\\coding\\Hackathon\\ChatBot-Project\\wwwroot\\",
       "BasePath": "_content/ChatBot",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "/Users/Rashotech/Documents/Client/FBN/Project/fbnachatbot/wwwroot/default.htm",
+      "Identity": "C:\\Users\\Samuel N. Okafor\\Documents\\coding\\Hackathon\\ChatBot-Project\\wwwroot\\default.htm",
       "SourceId": "ChatBot",
       "SourceType": "Discovered",
-      "ContentRoot": "/Users/Rashotech/Documents/Client/FBN/Project/fbnachatbot/wwwroot/",
+      "ContentRoot": "C:\\Users\\Samuel N. Okafor\\Documents\\coding\\Hackathon\\ChatBot-Project\\wwwroot\\",
       "BasePath": "_content/ChatBot",
       "RelativePath": "default.htm",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot/default.htm"
+      "OriginalItemSpec": "wwwroot\\default.htm"
     }
   ]
 }
