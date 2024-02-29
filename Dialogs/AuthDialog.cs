@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using ChatBot.Services.Interfaces;
 using System.Text.RegularExpressions;
 using ChatBot.Database.Models;
+using System.Collections.Generic;
 
 namespace ChatBot.Dialogs
 {
@@ -18,19 +19,24 @@ namespace ChatBot.Dialogs
         private readonly string AccountNumberDlgId = "AccountNumberDlgId";
         private readonly string SendOtpDlgId = "SendOtpDlgId";
         private readonly string ConfirmOtpDlgId = "ConfirmOtpDlgId";
+        private readonly string DataNoticeDlgId = "DataNoticeDlgId";
+        private bool hasAcceptedDataNotice = false;
 
-        public AuthDialog(IAccountService accountService, ICustomerService customerService)
+        public AuthDialog(IAccountService accountService, ICustomerService customerService, ConversationState conversationState)
         : base(nameof(AuthDialog))
         {
             _accountService = accountService;
             _customerService = customerService;
             AddDialog(new TextPrompt(AccountNumberDlgId, AccountNumberValidator));
+            AddDialog(new TextPrompt(DataNoticeDlgId));
             AddDialog(new TextPrompt(SendOtpDlgId, OtpValidator));
             AddDialog(new TextPrompt(ConfirmOtpDlgId));
             AddDialog(new ConfirmPrompt(nameof(ConfirmPrompt)));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 RequestAccountNumberStepAsync,
+                DataNoticeStepAsync,
+                AcknowledgeDataNoticeStepAsync,
                 ConfirmAccountNumberStepAsync,
                 SendOtpStepAsync,
                 ConfirmOtpStepAsync
@@ -50,12 +56,56 @@ namespace ChatBot.Dialogs
             return await stepContext.PromptAsync(AccountNumberDlgId, promptOptions, cancellationToken);
         }
 
+
+        private async Task<DialogTurnResult> DataNoticeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            stepContext.Values["AccountNumber"] = (string)stepContext.Result;
+
+            if (hasAcceptedDataNotice == false)
+            {
+                var reply = MessageFactory.Text(
+                 "**Data Protection Notice**" +
+                 "\n\nTo provide you with our products and services, we need to collect, record, use, share and store personal and financial information about you (“Information”). Your Information may include Personal Data and Sensitive Personal Data as defined in the Nigeria Data Protection Regulation 2019 (“NDPR”) (as may be amended, replaced, or re-enacted from time to time) and any other law or regulation governing Data Protection."
+                 );
+
+                reply.SuggestedActions = new SuggestedActions()
+                {
+                    Actions = new List<CardAction>()
+                    {
+                        new CardAction() { Title = "Accept", Type = ActionTypes.ImBack, Value = "Accept" },
+                        new CardAction() { Title = "Decline", Type = ActionTypes.ImBack, Value = "Decline" },
+                    },
+                };
+                await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+
+                return Dialog.EndOfTurn;
+            }
+
+            return await stepContext.NextAsync();
+        }
+
+        private async Task<DialogTurnResult> AcknowledgeDataNoticeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            hasAcceptedDataNotice = (string)stepContext.Result == "Accept";
+            if (hasAcceptedDataNotice)
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Thank you for accepting the data consent."), cancellationToken);
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Validating account number, Please wait for a moment.."), cancellationToken);
+                return await stepContext.NextAsync();
+            }
+            else
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("You can’t proceed further as you have rejected data consent."), cancellationToken);
+                return await stepContext.EndDialogAsync();
+            }
+        }
+
         private async Task<DialogTurnResult> ConfirmAccountNumberStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             try
             {
-                var accounNumber = stepContext.Result.ToString();
-                var account = await _accountService.GetAccountByAccountNumber(accounNumber);
+                var accountNumber = (string)stepContext.Values["AccountNumber"];
+                var account = await _accountService.GetAccountByAccountNumber(accountNumber);
                 var customer = await _customerService.GetCustomerInfoAsync(account.Id);
 
                 stepContext.Values["Customer"] = customer;
@@ -106,7 +156,7 @@ namespace ChatBot.Dialogs
                 return await stepContext.PromptAsync(ConfirmOtpDlgId, promptOptions, cancellationToken);
             }
 
-            return await stepContext.EndDialogAsync(stepContext, cancellationToken);
+            return await stepContext.EndDialogAsync();
         }
 
         private static Task<bool> AccountNumberValidator(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
