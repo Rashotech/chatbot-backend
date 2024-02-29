@@ -13,6 +13,7 @@ namespace ChatBot.Dialogs
 {
     public class AuthDialog : CancelAndHelpDialog
     {
+        private readonly IStatePropertyAccessor<Account> _accountInfoAccessor;
         private const string AdaptivePromptId = "adaptive";
         private readonly IAccountService _accountService;
         private readonly ICustomerService _customerService;
@@ -22,9 +23,10 @@ namespace ChatBot.Dialogs
         private readonly string DataNoticeDlgId = "DataNoticeDlgId";
         private bool hasAcceptedDataNotice = false;
 
-        public AuthDialog(IAccountService accountService, ICustomerService customerService)
+        public AuthDialog(IAccountService accountService, ICustomerService customerService, UserState userState)
         : base(nameof(AuthDialog))
         {
+            _accountInfoAccessor = userState.CreateProperty<Account>("Account");
             _accountService = accountService;
             _customerService = customerService;
             AddDialog(new TextPrompt(AccountNumberDlgId, AccountNumberValidator));
@@ -96,7 +98,7 @@ namespace ChatBot.Dialogs
             else
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("You can’t proceed further as you have rejected data consent."), cancellationToken);
-                return await stepContext.EndDialogAsync();
+                return await stepContext.CancelAllDialogsAsync();
             }
         }
 
@@ -107,6 +109,8 @@ namespace ChatBot.Dialogs
                 var accountNumber = (string)stepContext.Values["AccountNumber"];
                 var account = await _accountService.GetAccountByAccountNumber(accountNumber);
                 var customer = await _customerService.GetCustomerInfoAsync(account.Id);
+
+                await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
 
                 stepContext.Values["Customer"] = customer;
                 stepContext.Values["Account"] = account;
