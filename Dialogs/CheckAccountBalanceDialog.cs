@@ -1,8 +1,10 @@
 ﻿using ChatBot.Database.Models;
-using ChatBot.Services;
 using ChatBot.Services.Interfaces;
+using ChatBot.Utils;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Schema;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,8 +13,10 @@ namespace ChatBot.Dialogs
 {
     public class CheckAccountBalanceDialog : CancelAndHelpDialog
     {
+        private const string AdaptivePromptId = "adaptive";
         private readonly IStatePropertyAccessor<Account> _accountInfoAccessor;
         private readonly IAccountService _accountService;
+        private readonly ICustomerService _customerService;
         public CheckAccountBalanceDialog(
             IAccountService accountService,
             ICustomerService customerService,
@@ -22,7 +26,9 @@ namespace ChatBot.Dialogs
      : base(nameof(CheckAccountBalanceDialog))
         {
             _accountService = accountService;
+            _customerService = customerService;
             _accountInfoAccessor = userState.CreateProperty<Account>("Account");
+            AddDialog(new AdaptiveCardPrompt(AdaptivePromptId));
             AddDialog(authDialog);
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -41,15 +47,60 @@ namespace ChatBot.Dialogs
 
         private async Task<DialogTurnResult> DisplayAccountBalance(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+
             try
             {
                 var account = _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
                 var balance = await _accountService.GetAccountBalanceAsync(account.Id);
+                var customer = await _customerService.GetCustomerInfoAsync(account.Id);
+
 
                 if (balance != null)
                 {
-                    string accountBalance = $"{ balance.Currency } { balance.Balance:N2}";
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Your account balance is: {accountBalance}"), cancellationToken);
+                    string accountName = $"{customer.FirstName} {customer.OtherName} {customer.LastName}";
+                    string accountBalance = $"{balance.Currency} {balance.Balance:N2}";
+
+
+                    var adaptiveCardJson = @"
+        {
+            ""type"": ""AdaptiveCard"",
+            ""body"": [
+                {
+                    ""type"": ""TextBlock"",
+                    ""text"": ""Account Balance"",
+                    ""weight"": ""Bolder"",
+                    ""size"": ""Medium""
+                    
+                },
+                {
+                    ""type"": ""TextBlock"",
+                    ""text"": ""Account Name: ${accountName}"",
+                    ""size"": ""Medium"",
+                    ""weight"": ""Bolder""
+                },
+                {
+                    ""type"": ""TextBlock"",
+                    ""text"": ""Balance: ${balance}"",
+                    ""size"": ""ExtraLarge"",
+                    ""weight"": ""Bolder"",
+                    ""spacing"": ""Small""
+                }
+            ]
+        }";
+                    adaptiveCardJson = adaptiveCardJson.Replace("${accountName}", accountName);
+                    adaptiveCardJson = adaptiveCardJson.Replace("${balance}", accountBalance);
+                    adaptiveCardJson = adaptiveCardJson.Replace("${accountType}", accountBalance);
+
+                    var adaptiveCardAttachment = new Attachment()
+                    {
+                        ContentType = "application/vnd.microsoft.card.adaptive",
+                        Content = JObject.Parse(adaptiveCardJson)
+                    };
+
+                    var message = MessageFactory.Attachment(adaptiveCardAttachment);
+
+                    await stepContext.Context.SendActivityAsync(message, cancellationToken);
+
                 }
                 else
                 {
@@ -70,5 +121,9 @@ namespace ChatBot.Dialogs
 
 
         }
+
+
     }
 }
+
+
