@@ -18,7 +18,7 @@ namespace ChatBot.Dialogs
         private readonly BankOperationRecognizer _cluRecognizer;
         protected readonly ILogger Logger;
 
-        public MainDialog(BankOperationRecognizer cluRecognizer, OpenAccounDialog openAccounDialog, ILogger<MainDialog> logger)
+        public MainDialog(BankOperationRecognizer cluRecognizer, OpenAccounDialog openAccounDialog, GetTransactionHistoryDialog getTransactionHistoryDialog, ILogger<MainDialog> logger)
             : base(nameof(MainDialog))
         {
             _cluRecognizer = cluRecognizer;
@@ -26,6 +26,7 @@ namespace ChatBot.Dialogs
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(openAccounDialog);
+            AddDialog(getTransactionHistoryDialog);
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 IntroStepAsync,

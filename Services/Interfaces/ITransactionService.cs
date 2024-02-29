@@ -11,7 +11,6 @@ namespace ChatBot.Services.Interfaces
         Task<Transaction> FundTransfer(FundTransferDto fundTransferDto);
         Task<IEnumerable<TransactionDto>> GetAccountTransactionsAsync(int accountId, int page = 1, int limit = 5);
         Task GetAccountTransactionsAsync(TransactionDto transactionInfo);
-        Task GetTransactionHistoryAsync(string accountNumber);
     }
 }
 

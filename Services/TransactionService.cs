@@ -9,8 +9,8 @@ using ChatBot.Services.Interfaces;
 
 namespace ChatBot.Services
 {
-	public class TransactionService: ITransactionService
-	{
+    public class TransactionService : ITransactionService
+    {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAccountService _accountService;
 
@@ -52,7 +52,7 @@ namespace ChatBot.Services
                 {
                     TransactionReference = GenerateTransactionRef(),
                     AccountId = fundTransferDto.AccountId,
-                    Amount = (int) fundTransferDto.Amount * 100,
+                    Amount = (int)fundTransferDto.Amount * 100,
                     TransactionType = TransactionType.Transfer,
                     Direction = TransactionDirection.Debit,
                     Channel = fundTransferDto.Channel,
@@ -67,7 +67,7 @@ namespace ChatBot.Services
                 await _unitOfWork.CommitAsync();
                 return transaction;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw;
 
@@ -87,6 +87,7 @@ namespace ChatBot.Services
         {
             throw new NotImplementedException();
         }
+
     }
 }
 
