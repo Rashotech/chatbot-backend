@@ -1,35 +1,82 @@
-﻿// Generated with ChatBot .NET Template version v4.22.0
-
+﻿using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
+using ChatBot.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace ChatBot.Controllers
 {
-    // This ASP Controller is created to handle a request. Dependency Injection will provide the Adapter and IBot
-    // implementation at runtime. Multiple different IBot implementations running at different endpoints can be
-    // achieved by specifying a more specific type for the bot constructor argument.
     [Route("api/messages")]
     [ApiController]
     public class BotController : ControllerBase
     {
         private readonly IBotFrameworkHttpAdapter _adapter;
         private readonly IBot _bot;
+        private readonly string azureChatBotSecret;
+        private readonly string azureChatUrl;
+        private readonly IConfiguration _configuration;
 
-        public BotController(IBotFrameworkHttpAdapter adapter, IBot bot)
+        public BotController(
+            IBotFrameworkHttpAdapter adapter,
+            IBot bot,
+            IConfiguration configuration
+        )
         {
             _adapter = adapter;
             _bot = bot;
+            _configuration = configuration;
+            azureChatBotSecret = _configuration["AzureChatBot:Secret"];
+            azureChatUrl = _configuration["AzureChatBot:Url"];
         }
 
-        [HttpPost]
-        [HttpGet]
+        [HttpPost, HttpGet]
         public async Task PostAsync()
         {
-            // Delegate the processing of the HTTP POST to the adapter.
-            // The adapter will invoke the bot.
             await _adapter.ProcessAsync(Request, Response, _bot);
+        }
+
+        [HttpPost("chatbot")]
+        public async Task<ActionResult> ChatBot()
+        {
+            var secret = azureChatBotSecret;
+
+            HttpClient client = new HttpClient();
+
+            HttpRequestMessage request = new HttpRequestMessage(
+                HttpMethod.Post, azureChatUrl);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", secret);
+
+            var userId = $"dl_{Guid.NewGuid()}";
+
+            request.Content = new StringContent(
+                JsonConvert.SerializeObject(
+                    new { User = new { Id = userId } }),
+                    Encoding.UTF8,
+                    "application/json");
+
+            var response = await client.SendAsync(request);
+            string token = String.Empty;
+
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                token = JsonConvert.DeserializeObject<DirectLineTokenDto>(body).token;
+            }
+
+            var config = new ChatConfigDto()
+            {
+                Token = token,
+                UserId = userId
+            };
+
+            return Ok(config);
         }
     }
 }
