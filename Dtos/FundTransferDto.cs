@@ -29,5 +29,16 @@ namespace ChatBot.Dtos
         [Required]
         public string RecipientBankName { get; set; }
     }
+
+    public class ExtractBankDto
+    {
+        public string BankCode { get; set; }
+    }
+
+    public class RecipientDto
+    {
+        public string RecipientName { get; set; }
+        public string RecipientAccountNumber { get; set; }
+    }
 }
 

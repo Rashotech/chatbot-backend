@@ -1,5 +1,3 @@
-﻿// Generated with ChatBot .NET Template version v4.22.0
-
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -89,12 +87,13 @@ namespace ChatBot
             // Register LUIS recognizer
             services.AddSingleton<BankOperationRecognizer>();
 
-            // Register the BookingDialog.
+            // Register the Dialogs.
             services.AddScoped<OpenAccounDialog>();
             services.AddScoped<AuthDialog>();
+            services.AddScoped<FundTransferDialog>();
             services.AddScoped<CheckAccountBalanceDialog>();
-
             services.AddScoped<MainDialog>();
+          
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
 
             services.AddTransient<IBot, DialogAndWelcomeBot<MainDialog>>();

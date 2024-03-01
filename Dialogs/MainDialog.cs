@@ -20,6 +20,7 @@ namespace ChatBot.Dialogs
         public MainDialog(
             BankOperationRecognizer cluRecognizer,
             OpenAccounDialog openAccounDialog,
+            FundTransferDialog fundTransferDialog,
             CheckAccountBalanceDialog checkAccountBalanceDialog,
             ILogger<MainDialog> logger
         )
@@ -30,6 +31,7 @@ namespace ChatBot.Dialogs
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(openAccounDialog);
+            AddDialog(fundTransferDialog);
             AddDialog(checkAccountBalanceDialog);
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -50,6 +52,7 @@ namespace ChatBot.Dialogs
                 {
                     new CardAction(ActionTypes.PostBack, title: "Open Account", value: nameof(BankOperationIntent.OpenAccount)),
                     new CardAction(ActionTypes.PostBack, title: "Balance Enquiry", value: nameof(BankOperationIntent.CheckBalance)),
+                    new CardAction(ActionTypes.PostBack, title: "Fund Transfer", value: nameof(BankOperationIntent.FundTransfer)),
                     new CardAction(ActionTypes.PostBack, title: "Transaction History", value: nameof(BankOperationIntent.GetTransactionHistory)),
                 },
             };
@@ -73,9 +76,13 @@ namespace ChatBot.Dialogs
                 {
                     case nameof(BankOperationIntent.OpenAccount):
                         return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), new OpenAccountDto(), cancellationToken);
+                        
+                    case nameof(BankOperationIntent.FundTransfer):
+                        return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
+                        
                     case nameof(BankOperationIntent.CheckBalance):
                         return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
-
+                        
                     default:
                         // Catch all for unhandled intents
                         var didntUnderstandMessageText = $"Sorry, I didn't get that. Please try asking in a different way)";
@@ -95,8 +102,9 @@ namespace ChatBot.Dialogs
                     case BankOperation.Intent.AccountOpening:
                         return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), null, cancellationToken);
 
-                    case BankOperation.Intent.LogComplaints:
-                        return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), null, cancellationToken);
+                    case BankOperation.Intent.FundTransfer:
+                        return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
+                        
                     case BankOperation.Intent.CheckingBalance:
                         return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
 
