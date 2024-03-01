@@ -45,7 +45,6 @@ namespace ChatBot.Services
         {
             try
             {
-                // Check account balance
                 await _accountService.DebitAccountAsync(fundTransferDto.AccountId, fundTransferDto.Amount);
 
                 var transaction = new Transaction

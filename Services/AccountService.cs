@@ -14,6 +14,7 @@ namespace ChatBot.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICustomerService _customerService;
         private readonly string defaultOtp = "123456";
+        private readonly string defaultPin = "1234";
 
         public AccountService(IUnitOfWork unitOfWork, ICustomerService customerService)
 		{
@@ -96,6 +97,17 @@ namespace ChatBot.Services
 
             return true;
         }
+
+        public bool ValidatePin(string pin)
+        {
+            if (string.IsNullOrEmpty(pin) || pin.Length != 4 || pin != defaultPin)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
 
         public async Task<GetBalanceDto> GetAccountBalanceAsync(int accountId)
         {

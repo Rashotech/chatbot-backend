@@ -12,6 +12,7 @@ namespace ChatBot.Services.Interfaces
         Task<bool> DebitAccountAsync(int accountId, decimal amount);
         Task<Account> GetAccountByAccountNumber(string accountNumber);
         bool ValidateOtp(string otp);
+        bool ValidatePin(string otp);
     }
 }
 
