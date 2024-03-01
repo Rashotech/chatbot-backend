@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -73,6 +74,74 @@ namespace ChatBot.Utils
 
             return adaptiveCardAttachment;
         }
+
+        public static Attachment CreateTableAdaptiveCardAttachment<T>(string cardName, IEnumerable<T> dataList, Func<T, string> getNarration, Func<T, string> getDate, Func<T, string> getAmount)
+        {
+            var filePath = Path.Combine(".", "Resources", $"{cardName}.json");
+            var adaptiveCardJson = File.ReadAllText(filePath);
+
+            var cardJson = JObject.Parse(adaptiveCardJson);
+            var container = (JArray)cardJson.SelectToken("$.body[1].items");
+
+            foreach (var dataItem in dataList)
+            {
+                var narration = getNarration(dataItem);
+                var date = getDate(dataItem);
+                var amount = getAmount(dataItem);
+
+                var columnSet = new JObject
+                {
+                    ["type"] = "ColumnSet",
+                    ["separator"] = true,
+                    ["columns"] = new JArray
+            {
+                new JObject
+                {
+                    ["type"] = "Column",
+                    ["width"] = "stretch",
+                    ["items"] = new JArray
+                    {
+                        new JObject
+                        {
+                            ["type"] = "TextBlock",
+                            ["text"] = narration,
+                            ["wrap"] = true
+                        },
+                        new JObject
+                        {
+                            ["type"] = "TextBlock",
+                            ["text"] = date
+                        }
+                    }
+                },
+                new JObject
+                {
+                    ["type"] = "Column",
+                    ["width"] = "auto",
+                    ["items"] = new JArray
+                    {
+                        new JObject
+                        {
+                            ["type"] = "TextBlock",
+                            ["text"] = amount
+                        }
+                    }
+                }
+            }
+                };
+
+                container.Add(columnSet);
+            }
+
+            var adaptiveCardAttachment = new Attachment()
+            {
+                ContentType = "application/vnd.microsoft.card.adaptive",
+                Content = cardJson
+            };
+
+            return adaptiveCardAttachment;
+        }
+
     }
 }
 
