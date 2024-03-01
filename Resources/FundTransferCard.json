@@ -1,0 +1,23 @@
+﻿{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.3",
+  "body": [
+    {
+      "type": "Input.ChoiceSet",
+      "id": "BankCode",
+      "style": "compact",
+      "label": "Kindly select destination bank",
+      "errorMessage": "Destination Bank is required",
+      "isRequired": true,
+      "isMultiSelect": false,
+      "choices": []
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Submit"
+    }
+  ]
+}
