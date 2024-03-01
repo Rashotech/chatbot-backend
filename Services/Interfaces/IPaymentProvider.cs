@@ -7,7 +7,7 @@ namespace ChatBot.Services.Interfaces
 {
 	public interface IPaymentProvider
 	{
-        Task<List<Bank>> GetBankListAsync();
+        Task<IEnumerable<Bank>> GetBankListAsync();
         Task<AccountResolveData> ResolveAccountAsync(string accountNumber, string bankCode);
     }
 }

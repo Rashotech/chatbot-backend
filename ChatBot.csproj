@@ -44,7 +44,6 @@
     <None Remove="Models\" />
     <None Remove="Resources\" />
     <None Remove="Clu\" />
-    <None Remove="Exceptions\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />
@@ -58,6 +57,5 @@
     <Folder Include="Models\" />
     <Folder Include="Resources\" />
     <Folder Include="Clu\" />
-    <Folder Include="Exceptions\" />
   </ItemGroup>
 </Project>

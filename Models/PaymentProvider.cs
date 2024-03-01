@@ -1,33 +1,45 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ChatBot.Models
 {
     public class GeneralResponse
     {
-        public bool status { get; set; }
-        public string message { get; set; }
+        public bool Status { get; set; }
+        public string Message { get; set; }
     }
 
     public class Bank
 	{
-        public string name { get; set; }
-        public string code { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("slug")]
+        public string Slug { get; set; }
+
+        [JsonPropertyName("code")]
+        public string Code { get; set; }
     }
 
     public class BankListResponse: GeneralResponse
     {
-        public List<Bank> data { get; set; }
+        [JsonPropertyName("data")]
+        public List<Bank> Data { get; set; }
     }
 
     public class AccountResolveResponse: GeneralResponse
     {
-        public AccountResolveData data { get; set; }
+        public AccountResolveData Data { get; set; }
     }
 
     public class AccountResolveData
     {
-        public string account_number { get; set; }
-        public string account_name { get; set; }
+        [JsonPropertyName("account_number")]
+        public string AccountNumber { get; set; }
+
+        [JsonPropertyName("account_name")]
+        public string AccountName { get; set; }
     }
 }
 
