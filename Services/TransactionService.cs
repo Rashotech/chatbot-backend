@@ -33,6 +33,8 @@ namespace ChatBot.Services
                 Status = t.Status.ToString(),
                 Amount = (int)Math.Round(t.Amount / 100m, 2),
                 Narration = t.Narration,
+                Date = t.CreatedAt,
+                Currency = "NGN",
                 RecipientAccountNumber = t.RecipientAccountNumber,
                 RecipientBankCode = t.RecipientBankCode,
                 RecipientName = t.RecipientName,
