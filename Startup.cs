@@ -92,7 +92,7 @@ namespace ChatBot
             // Register the BookingDialog.
             services.AddScoped<OpenAccounDialog>();
             services.AddScoped<AuthDialog>();
-
+            services.AddScoped<FundTransferDialog>();
             services.AddScoped<MainDialog>();
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
 

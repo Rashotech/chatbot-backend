@@ -12,8 +12,6 @@ using ChatBot.Utils;
 using ChatBot.Models;
 using ChatBot.Dtos;
 using Newtonsoft.Json;
-using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
 
 namespace ChatBot.Dialogs
 {
@@ -28,8 +26,6 @@ namespace ChatBot.Dialogs
         private readonly string PinDlgId = "PinDlgId";
         private readonly string RequestRecipientAccountNumberDlgId = "RequestRecipientAccountNumberDlgId";
         private readonly string NarrationDlgId = "NarrationDlgId";
-        private bool hasAcceptedDataNotice = false;
-        private bool attemptsExceeded = false;
 
         public FundTransferDialog(
             IAccountService accountService,
@@ -137,25 +133,34 @@ namespace ChatBot.Dialogs
 
         private async Task<DialogTurnResult> SelectBankStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var bank = (Bank)stepContext.Values["bank"];
-
-            if(bank == null)
+            try
             {
-                var result = (ExtractBankDto)stepContext.Options;
-                result = JsonConvert.DeserializeObject<ExtractBankDto>(stepContext.Result.ToString());
-                var banks = (List<Bank>)stepContext.Values["banks"];
-                var selectedBank = banks.Find(bank => bank.code == result.BankCode);
-                var bankData = new Bank()
-                {
-                    name = selectedBank.name,
-                    code = result.BankCode
-                };
-                stepContext.Values["bank"] = bankData;
-                var message = MessageFactory.Text($"Selected bank: {selectedBank.name}");
-                await stepContext.Context.SendActivityAsync(message, cancellationToken);
-            }
+                var bank = (Bank)stepContext.Values["bank"];
 
-            return await stepContext.NextAsync(cancellationToken: cancellationToken);
+                if(bank == null)
+                {
+                    var result = (ExtractBankDto)stepContext.Options;
+                    result = JsonConvert.DeserializeObject<ExtractBankDto>(stepContext.Result.ToString());
+                    var banks = (List<Bank>)stepContext.Values["banks"];
+                    var selectedBank = banks.Find(bank => bank.code == result.BankCode);
+                    var bankData = new Bank()
+                    {
+                        name = selectedBank.name,
+                        code = result.BankCode
+                    };
+                    stepContext.Values["bank"] = bankData;
+                    var message = MessageFactory.Text($"Selected bank: {selectedBank.name}");
+                    await stepContext.Context.SendActivityAsync(message, cancellationToken);
+                }
+
+                return await stepContext.NextAsync(cancellationToken: cancellationToken);
+            } catch(Exception ex)
+            {
+                var errorMessage = "Fetching of Destination Bank List failed, Please Try again later";
+                errorMessage = ex.Message != "" ? ex.Message : errorMessage;
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text(errorMessage), cancellationToken);
+                return await stepContext.ReplaceDialogAsync(InitialDialogId, null, cancellationToken);
+            }
         }
 
         private async Task<DialogTurnResult> RequestRecipientAccountNumberAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -290,11 +295,6 @@ namespace ChatBot.Dialogs
 
         private async Task<DialogTurnResult> RequestPinStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            if (attemptsExceeded == true)
-            {
-                return await stepContext.CancelAllDialogsAsync(cancellationToken);
-            }
-
             var promptText = "Enter your ATM pin to complete this transaction";
 
             var promptOptions = new PromptOptions
@@ -348,24 +348,25 @@ namespace ChatBot.Dialogs
             var attempts = promptcontext.AttemptCount;
             var pin = promptcontext.Recognized.Value;
             var isPinValid = _accountService.ValidatePin(pin);
-            if (!isPinValid)
+            if (isPinValid == false)
             {
                 var attemptsLeft = maxAttempts - attempts;
-                if(attemptsLeft == 0)
+                if(attemptsLeft > 0)
                 {
-                    var text = MessageFactory.Text($"{attemptsLeft} Attempts left");
+                    var text = MessageFactory.Text($"Incorrect Pin\n{attemptsLeft} Attempts left");
                     await promptcontext.Context.SendActivityAsync(text, cancellationtoken);
-                    attemptsExceeded = true;
                     return false;
                 }
                 else
                 {
-                    var message = MessageFactory.Text("Too many failed attempts. Try again later.");
+                    var message = MessageFactory.Text("Too many failed attempts. Try again later. Type Quit to exit the bot");
                     await promptcontext.Context.SendActivityAsync(message, cancellationtoken);
                     return false;
                 }
+            } else
+            {
+                return true;
             }
-            return true;
         }
     }
 }
