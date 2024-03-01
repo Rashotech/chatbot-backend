@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ChatBot.Database.Models;
 using ChatBot.Repositories.Interfaces;
 using System.Threading.Tasks;
