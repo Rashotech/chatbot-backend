@@ -92,6 +92,7 @@ namespace ChatBot
             services.AddScoped<AuthDialog>();
             services.AddScoped<FundTransferDialog>();
             services.AddScoped<CheckAccountBalanceDialog>();
+            services.AddScoped<TransactionHistoryDialog>();
             services.AddScoped<MainDialog>();
           
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
