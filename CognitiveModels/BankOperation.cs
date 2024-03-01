@@ -12,11 +12,9 @@ namespace ChatBot.CognitiveModels
             BranchLocator,
             LogComplaints,
             Cancel,
-            BookFlight,
             CheckingBalance,
             FundTransfer,
-            GetWeather,
-            TransactionHistory,
+            GetTransactionHistory,
             None
         }
 

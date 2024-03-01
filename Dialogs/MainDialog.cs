@@ -22,6 +22,7 @@ namespace ChatBot.Dialogs
             OpenAccounDialog openAccounDialog,
             FundTransferDialog fundTransferDialog,
             CheckAccountBalanceDialog checkAccountBalanceDialog,
+            TransactionHistoryDialog transactionHistoryDialog,
             ILogger<MainDialog> logger
         )
             : base(nameof(MainDialog))
@@ -33,6 +34,7 @@ namespace ChatBot.Dialogs
             AddDialog(openAccounDialog);
             AddDialog(fundTransferDialog);
             AddDialog(checkAccountBalanceDialog);
+            AddDialog(transactionHistoryDialog);
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 IntroStepAsync,
@@ -82,7 +84,10 @@ namespace ChatBot.Dialogs
                         
                     case nameof(BankOperationIntent.CheckBalance):
                         return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
-                        
+
+                    case nameof(BankOperationIntent.GetTransactionHistory):
+                        return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
+
                     default:
                         // Catch all for unhandled intents
                         var didntUnderstandMessageText = $"Sorry, I didn't get that. Please try asking in a different way)";
@@ -107,6 +112,9 @@ namespace ChatBot.Dialogs
                         
                     case BankOperation.Intent.CheckingBalance:
                         return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
+
+                    case BankOperation.Intent.GetTransactionHistory:
+                        return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
 
                     default:
                         // Catch all for unhandled intents
