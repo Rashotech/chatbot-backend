@@ -17,20 +17,23 @@ namespace ChatBot.Services
             _httpClient = httpClientFactory.CreateClient("Paystack");
         }
 
-        public async Task<List<Bank>> GetBankListAsync()
+        public async Task<IEnumerable<Bank>> GetBankListAsync()
         {
             var response = await _httpClient.GetAsync("bank");
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<BankListResponse>(content);
-            if (result?.status == true)
+            var result = JsonSerializer.Deserialize<BankListResponse>(content, new JsonSerializerOptions
             {
-                return result.data;
+                PropertyNameCaseInsensitive = true
+            });
+            if (result?.Status == true)
+            {
+                return result.Data;
             }
             else
             {
-                throw new Exception("Failed to fetch banks: " + result?.message);
+                throw new Exception("Failed to fetch banks: " + result?.Message);
             }
         }
 
@@ -46,13 +49,13 @@ namespace ChatBot.Services
             });
             Console.WriteLine(result);
 
-            if (result?.status == true)
+            if (result?.Status == true)
             {
-                return result.data;
+                return result.Data;
             }
             else
             {
-                throw new Exception("Failed to resolve account: " + result?.message);
+                throw new Exception("Failed to resolve account: " + result?.Message);
             }
         }
     }

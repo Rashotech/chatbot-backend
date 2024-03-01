@@ -86,6 +86,8 @@ namespace ChatBot.Dialogs
                 {
                     var accountInfo = (OpenAccountDto)stepContext.Values["AccountInfo"];
 
+                    Console.WriteLine(accountInfo.Address);
+
                     var openAccountDto = new OpenAccountDto
                     {
                         FirstName = accountInfo.FirstName,
