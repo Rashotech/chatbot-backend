@@ -7,7 +7,6 @@ namespace ChatBot.Services.Interfaces
 {
     public interface IComplaintService
     {
-        void AddComplaintAsync(Complaint complaint);
         Task<Complaint> LogComplaintAsync(LogComplaintDto logComplaintDto);
         
     }

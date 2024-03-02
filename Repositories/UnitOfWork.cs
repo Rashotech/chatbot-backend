@@ -15,8 +15,8 @@ namespace ChatBot.Repositories
             _context = context;
             Customers = new CustomerRepository(_context);
             Accounts = new AccountRepository(_context);
+            Complaints = new ComplaintRepository(_context);
             Transactions = new TransactionRepository(_context);
-            //Complaints = new ComplaintRepository(_context);
         }
 
         public ICustomerRepository Customers { get; private set; }
@@ -24,15 +24,14 @@ namespace ChatBot.Repositories
         public IAccountRepository Accounts { get; private set; }
 
         public ITransactionRepository Transactions { get; private set; }
-        //public IComplaintRepository Complaints { get; private set; }
 
-        public IComplaintService Complaints { get; private set; }
+        public IComplaintRepository Complaints { get; private set; }
 
-        public UnitOfWork(ICustomerRepository customers, IAccountRepository accounts, IComplaintService complaints, ITransactionRepository transactions)
+        public UnitOfWork(ICustomerRepository customers, IAccountRepository accounts, IComplaintRepository complaints, ITransactionRepository transactions)
         {
             Customers = customers;
             Accounts = accounts;
-            Complaints = complaints;  // Set the Complaints property
+            Complaints = complaints;
             Transactions = transactions;
         }
 
@@ -50,11 +49,6 @@ namespace ChatBot.Repositories
         public void Dispose()
         {
             _context.Dispose();
-        }
-
-        public async Task AddComplaintAsync(Complaint complaint)
-        {
-            await _context.Complaints.AddAsync(complaint);
         }
     }
 }

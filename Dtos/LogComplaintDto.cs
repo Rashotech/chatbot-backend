@@ -12,12 +12,12 @@ namespace ChatBot.Dtos
         public string Category { get; set; }
 
         [Required]
-        public string Platform { get; set; }
+        public Channel Channel { get; set; }
 
         public DateTime Date { get; set; }
 
         [Required]
-        public string Ref { get; set; }
+        public string TransactionRef { get; set; }
 
         [Required]
         public string Description { get; set; }
@@ -26,7 +26,7 @@ namespace ChatBot.Dtos
         public int Amount { get; set; }
         
         [Required]
-        public int ComplaintId { get; set; }
+        public int AccountId { get; set; }
 
         
     }

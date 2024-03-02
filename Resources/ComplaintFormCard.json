@@ -13,14 +13,10 @@
     },
     {
       "type": "Input.ChoiceSet",
-      "label": "Transaction Catrgory",
+      "label": "What did you try to do?",
       "style": "compact",
       "value": "",
       "choices": [
-        {
-          "title": "POS",
-          "value": "POS"
-        },
         {
           "title": "Money Transfer",
           "value": "Money Transfer"
@@ -49,7 +45,7 @@
     },
     {
       "type": "Input.ChoiceSet",
-      "label": "Platform",
+      "label": "Which of our channels did you use?",
       "style": "compact",
       "value": "",
       "choices": [
@@ -62,23 +58,27 @@
           "value": "ATM"
         },
         {
-          "title": "Web",
-          "value": "Web"
+          "title": "Chat Banking",
+          "value": "ChatBot"
         },
         {
-          "title": "Chat Banking",
-          "value": "Chat Banking"
+          "title": "USSD",
+          "value": "USSD"
         },
         {
           "title": "Mobile Banking",
-          "value": "Mobile Banking"
+          "value": "Mobile"
         },
         {
           "title": "Internet Banking",
-          "value": "Internet Banking"
+          "value": "Internet"
+        },
+        {
+          "title": "Our Branches",
+          "value": "Branch"
         }
       ],
-      "id": "Platform",
+      "id": "Channel",
       "isRequired": true,
       "errorMessage": "Platform is required",
       "placeholder": "Which of our channels did you use?"
@@ -92,7 +92,7 @@
     },
     {
       "type": "Input.Number",
-      "label": "How much are we talking abou here?",
+      "label": "How much are we talking about here?",
       "isRequired": true,
       "errorMessage": "Amount is required",
       "id": "Amount"
@@ -103,7 +103,7 @@
       "style": "text",
       "isRequired": true,
       "errorMessage": "Platform is required",
-      "id": "Ref",
+      "id": "TransactionRef",
       "placeholder": "Enter the transaction reference number"
     },
     {
@@ -118,9 +118,6 @@
     {
       "type": "Action.Submit",
       "title": "Submit",
-      "data": {
-        "id": "1234567890"
-      }
     }
   ]
 }

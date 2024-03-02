@@ -90,12 +90,15 @@ namespace ChatBot.Dialogs
             var complaint = (LogComplaintDto)stepContext.Options;
             complaint = JsonConvert.DeserializeObject<LogComplaintDto>(stepContext.Result.ToString());
             stepContext.Values["Complaint"] = complaint;
+            var account = await _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
+            stepContext.Values["Account"] = account;
 
             var confirmationMessage = $"Thank you for providing your data.\n\n" +
+                                       $"Account Number: {account.AccountNumber}\n\n" +
                                        $"Category: {complaint.Category}\n\n" +
-                                       $"Platform: {complaint.Platform}\n\n" +
+                                       $"Platform: {complaint.Channel}\n\n" +
                                        $"Date: {complaint.Date}\n\n" +
-                                       $"Ref: {complaint.Ref}\n\n" +
+                                       $"Ref: {complaint.TransactionRef}\n\n" +
                                        $"Description: {complaint.Description}\n\n" +
                                        $"Amount: {complaint.Amount}\n\n" +
                                        $"Please confirm your details above. Is this correct?";
@@ -290,8 +293,10 @@ namespace ChatBot.Dialogs
                     {
                         // Log the complaint
                         await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Hold on, I'm logging your complaint..."), cancellationToken);
+                        var account = (Account)stepContext.Values["Account"];
+                        complaintInfo.AccountId = account.Id;
                         var complaint = await _complaintService.LogComplaintAsync(complaintInfo);
-                        var response = $"Your complaint has been logged successfully. Your new Complaint ID is '{complaint.ComplaintId}'.";
+                        var response = $"Your complaint has been logged successfully. Your new Complaint ID is '{complaint.ComplaintNo}'.";
                         await stepContext.Context.SendActivityAsync(MessageFactory.Text(response), cancellationToken);
                         return await stepContext.EndDialogAsync(complaintInfo, cancellationToken);
                     }
@@ -305,8 +310,8 @@ namespace ChatBot.Dialogs
                 else
                 {
                     // Handle case where user didn't confirm the submission
-                    var promptMessage = "Kindly fill the form again with the right details";
-                    return await stepContext.ReplaceDialogAsync(InitialDialogId, promptMessage, cancellationToken);
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Kindly fill the form again with the right details"), cancellationToken);
+                    return await stepContext.ReplaceDialogAsync(nameof(DisplayComplaintFormAsync), null, cancellationToken);
                 }
             }
             catch (Exception ex)

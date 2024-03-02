@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChatBot.Repositories
 {
-    public class ComplaintRepository : RepositoryBase<Complaint>,  IComplaintRepository
+    public class ComplaintRepository : RepositoryBase<Complaint>, IComplaintRepository
     {
         private readonly BankDbContext _DbContext;
 
@@ -19,22 +19,16 @@ namespace ChatBot.Repositories
             _DbContext = context;
         }
 
-        public async Task AddComplaint(Complaint complaint)
-        {
-            await _DbContext.Complaints.AddAsync(complaint);
-            await _DbContext.SaveChangesAsync();
-        }
-
-        public async Task<List<Complaint>> GetAllComplaintsByUserId(int complaintId)
+        public async Task<List<Complaint>> GetAllComplaintsByComplaintNo(string complaintNo)
         {
             return await _DbContext.Complaints
-                .Where(c => c.ComplaintId == complaintId)
+                .Where(c => c.ComplaintNo == complaintNo)
                 .ToListAsync();
         }
 
-        public async Task<Complaint> GetSingleComplaint(int complaintId)
+        public async Task<Complaint> GetSingleComplaint(string complaintNo)
         {
-            return await _DbContext.Complaints.FindAsync(complaintId);
+            return await _DbContext.Complaints.FindAsync(complaintNo);
         }
 
         public async Task<List<Complaint>> GetComplaintsByCategory(string category)
@@ -44,10 +38,10 @@ namespace ChatBot.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<Complaint>> GetComplaintsByPlatform(string platform)
+        public async Task<List<Complaint>> GetComplaintsByChannel(Channel channel)
         {
             return await _DbContext.Complaints
-                .Where(c => c.Platform == platform)
+                .Where(c => c.Channel == channel)
                 .ToListAsync();
         }
 
@@ -62,6 +56,13 @@ namespace ChatBot.Repositories
         {
             return await _DbContext.Complaints
                 .Where(c => c.Description.Contains(searchTerm))
+                .ToListAsync();
+        }
+
+        public async Task<List<Complaint>> GetComplaintsByStatus(Status complaintStatus)
+        {
+            return await _DbContext.Complaints
+                .Where(c => c.ComplaintStatus == complaintStatus)
                 .ToListAsync();
         }
     }

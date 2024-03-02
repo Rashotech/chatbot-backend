@@ -31,7 +31,7 @@ namespace ChatBot.Database
             modelBuilder.Entity<Complaint>()
                 .HasOne(c => c.Account)
                 .WithMany(r => r.Complaints)
-                .HasForeignKey(c => c.ComplaintId);
+                .HasForeignKey(c => c.AccountId);
 
         }
 

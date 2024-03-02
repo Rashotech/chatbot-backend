@@ -17,37 +17,30 @@ namespace ChatBot.Services
             _unitOfWork = unitOfWork;
         }
 
-        public void Add(Complaint complaint)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddComplaintAsync(Complaint complaint)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<Complaint> LogComplaintAsync(LogComplaintDto logComplaintDto)
         {
             try
             {
                 var guid = Guid.NewGuid();
                 var hash = guid.GetHashCode();
-                var complaintId = Math.Abs(hash);
+                var complaintNo = $"comp-{Math.Abs(hash)}";
+                Status complaintStatus = Status.Pending;
 
 
                 var complaint = new Complaint
                 {
-                    ComplaintId = complaintId,
-                    Ref = logComplaintDto.Ref,
+                    ComplaintNo = complaintNo,
+                    TransactionRef = logComplaintDto.TransactionRef,
                     Amount = logComplaintDto.Amount,
                     Date = logComplaintDto.Date,
                     Category = logComplaintDto.Category,
-                    Platform = logComplaintDto.Platform,
-                    Description = logComplaintDto.Description
+                    Channel = logComplaintDto.Channel,
+                    Description = logComplaintDto.Description,
+                    AccountId = logComplaintDto.AccountId,
+                    ComplaintStatus = complaintStatus
                 };
 
-                _unitOfWork.Complaints.AddComplaintAsync(complaint);
+                _unitOfWork.Complaints.Add(complaint);
                 await _unitOfWork.CommitAsync();
 
                 return complaint;
