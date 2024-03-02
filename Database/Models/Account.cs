@@ -28,6 +28,7 @@ namespace ChatBot.Database.Models
 
         [JsonIgnore]
         public ICollection<Transaction> Transactions { get; set; }
+        public ICollection<Complaint> Complaints { get; set; }
     }
 
     public enum AccountType

@@ -1,0 +1,126 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.3",
+  "body": [
+    {
+      "type": "TextBlock",
+      "size": "medium",
+      "weight": "bolder",
+      "text": "Complaint Form",
+      "horizontalAlignment": "center",
+      "wrap": true
+    },
+    {
+      "type": "Input.ChoiceSet",
+      "label": "Transaction Catrgory",
+      "style": "compact",
+      "value": "",
+      "choices": [
+        {
+          "title": "POS",
+          "value": "POS"
+        },
+        {
+          "title": "Money Transfer",
+          "value": "Money Transfer"
+        },
+        {
+          "title": "Bill Payment",
+          "value": "Bill Payment"
+        },
+        {
+          "title": "Withdrawal",
+          "value": "Withdrawal"
+        },
+        {
+          "title": "Airtime Purchase",
+          "value": "Airtime Purchase"
+        },
+        {
+          "title": "Others",
+          "value": "Others"
+        }
+      ],
+      "id": "Category",
+      "isRequired": true,
+      "errorMessage": "Category is required",
+      "placeholder": "What type of transaction are you reporting?"
+    },
+    {
+      "type": "Input.ChoiceSet",
+      "label": "Platform",
+      "style": "compact",
+      "value": "",
+      "choices": [
+        {
+          "title": "POS",
+          "value": "POS"
+        },
+        {
+          "title": "ATM",
+          "value": "ATM"
+        },
+        {
+          "title": "Web",
+          "value": "Web"
+        },
+        {
+          "title": "Chat Banking",
+          "value": "Chat Banking"
+        },
+        {
+          "title": "Mobile Banking",
+          "value": "Mobile Banking"
+        },
+        {
+          "title": "Internet Banking",
+          "value": "Internet Banking"
+        }
+      ],
+      "id": "Platform",
+      "isRequired": true,
+      "errorMessage": "Platform is required",
+      "placeholder": "Which of our channels did you use?"
+    },
+    {
+      "type": "Input.Date",
+      "label": "When did you carry out the transaction?",
+      "isRequired": true,
+      "errorMessage": "Date is required",
+      "id": "Date"
+    },
+    {
+      "type": "Input.Number",
+      "label": "How much are we talking abou here?",
+      "isRequired": true,
+      "errorMessage": "Amount is required",
+      "id": "Amount"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Transaction Ref.",
+      "style": "text",
+      "isRequired": true,
+      "errorMessage": "Platform is required",
+      "id": "Ref",
+      "placeholder": "Enter the transaction reference number"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Is there any other thing you would like us to know?",
+      "style": "text",
+      "id": "Description",
+      "placeholder": "You can describe your issue here"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Submit",
+      "data": {
+        "id": "1234567890"
+      }
+    }
+  ]
+}

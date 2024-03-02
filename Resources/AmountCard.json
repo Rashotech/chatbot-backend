@@ -1,0 +1,23 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.3",
+  "body": [
+    {
+      "type": "Input.Number",
+      "label": "How much are we talking abou here?",
+      "isRequired": true,
+      "errorMessage": "Amount is required",
+      "id": "Amount"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Submit",
+      "data": {
+        "id": "1234567890"
+      }
+    }
+  ]
+}

@@ -21,6 +21,7 @@ namespace ChatBot.Dialogs
             BankOperationRecognizer cluRecognizer,
             OpenAccounDialog openAccounDialog,
             CheckAccountBalanceDialog checkAccountBalanceDialog,
+            LogComplaintDialog logComplaintDialog,
             ILogger<MainDialog> logger
         )
             : base(nameof(MainDialog))
@@ -31,6 +32,7 @@ namespace ChatBot.Dialogs
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(openAccounDialog);
             AddDialog(checkAccountBalanceDialog);
+            AddDialog(logComplaintDialog);
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 IntroStepAsync,
@@ -51,6 +53,7 @@ namespace ChatBot.Dialogs
                     new CardAction(ActionTypes.PostBack, title: "Open Account", value: nameof(BankOperationIntent.OpenAccount)),
                     new CardAction(ActionTypes.PostBack, title: "Balance Enquiry", value: nameof(BankOperationIntent.CheckBalance)),
                     new CardAction(ActionTypes.PostBack, title: "Transaction History", value: nameof(BankOperationIntent.GetTransactionHistory)),
+                    new CardAction(ActionTypes.PostBack, title: "Log Complaint", value: nameof(BankOperationIntent.LogComplaint)),
                 },
             };
 
@@ -75,6 +78,9 @@ namespace ChatBot.Dialogs
                         return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), new OpenAccountDto(), cancellationToken);
                     case nameof(BankOperationIntent.CheckBalance):
                         return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
+                        
+                    case nameof(BankOperationIntent.LogComplaint):
+                        return await stepContext.BeginDialogAsync(nameof(LogComplaintDialog), null, cancellationToken);
 
                     default:
                         // Catch all for unhandled intents
@@ -96,7 +102,7 @@ namespace ChatBot.Dialogs
                         return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), null, cancellationToken);
 
                     case BankOperation.Intent.LogComplaints:
-                        return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), null, cancellationToken);
+                        return await stepContext.BeginDialogAsync(nameof(LogComplaintDialog), null, cancellationToken);
                     case BankOperation.Intent.CheckingBalance:
                         return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
 
