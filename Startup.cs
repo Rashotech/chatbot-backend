@@ -37,6 +37,19 @@ namespace ChatBot
             {
                 options.SerializerSettings.MaxDepth = HttpHelper.BotMessageSerializerSettings.MaxDepth;
             });
+            
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    policy =>
+                    {
+                        policy
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                    }
+                );
+            });
 
             services.AddDbContext<BankDbContext>(options => options
             .UseSqlServer(Env.GetString("DB_URL"))
@@ -58,9 +71,6 @@ namespace ChatBot
 
             services.AddScoped<IPaymentProvider, PaystackPaymentProvider>();
 
-            // Create the Bot Framework Authentication to be used with the Bot Adapter.
-            services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
-
             // Create the Bot Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
@@ -69,19 +79,6 @@ namespace ChatBot
 
             // Create the User state. (Used in this bot's Dialog implementation.)
             services.AddSingleton<UserState>();
-
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(
-                    policy =>
-                    {
-                        policy
-                        .AllowAnyOrigin()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                    }
-                );
-            });
 
             // Create the Conversation state. (Used by the Dialog system itself.)
             services.AddSingleton<ConversationState>();
@@ -108,6 +105,10 @@ namespace ChatBot
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseHsts();
             }
 
             app.UseDefaultFiles()
