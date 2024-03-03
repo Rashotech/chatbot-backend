@@ -17,18 +17,21 @@ namespace ChatBot.Controllers
         private readonly IAccountService _accountService;
         private readonly ITransactionService _transactionService;
         private readonly IPaymentProvider _paymentProvider;
+        private readonly INotificationProvider _notificationProvider;
 
         public TestController(
             ICustomerService customerService,
             IAccountService accountService,
             ITransactionService transactionService,
-            IPaymentProvider paymentProvider
+            IPaymentProvider paymentProvider,
+            INotificationProvider notificationProvider
         )
         {
             _customerService = customerService;
             _accountService = accountService;
             _transactionService = transactionService;
             _paymentProvider = paymentProvider;
+            _notificationProvider = notificationProvider;
         }
 
         [HttpGet("account")]
@@ -124,6 +127,20 @@ namespace ChatBot.Controllers
         {
             var account = await _paymentProvider.ResolveAccountAsync("3073719356", "011");
             return Ok(account);
+        }
+
+        [HttpGet("otp/send")]
+        public async Task<IActionResult> SendOtpAsync()
+        {
+            var result = await _notificationProvider.SendOtpAsync("2348133166978");
+            return Ok(result);
+        }
+
+        [HttpGet("otp/confirm")]
+        public async Task<IActionResult> VerifyOtpAsync()
+        {
+            var result = await _notificationProvider.VerifyOtpAsyc("MN-OTP-9bc25b94-7417-43c8-9b1b-d7c49f532187", "243510");
+            return Ok(result);
         }
     }
 
