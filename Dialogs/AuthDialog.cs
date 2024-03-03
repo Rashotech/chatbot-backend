@@ -180,10 +180,10 @@ namespace ChatBot.Dialogs
             {
                 var otp = (string)stepContext.Result;
                 var isOtpValid = _accountService.ValidateOtp(otp);
+                var account = (Account)stepContext.Values["account"];
 
                 if(isOtpValid)
                 {
-                    var account = (Account)stepContext.Values["account"];
                     await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
                     return await stepContext.EndDialogAsync();
                 }
@@ -196,7 +196,6 @@ namespace ChatBot.Dialogs
                     return await stepContext.PromptAsync(ConfirmOtpDlgId, promptOptions, cancellationToken);
                 }
 
-                var account = (Account)stepContext.Values["account"];
                 await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
             }
             catch (Exception)
