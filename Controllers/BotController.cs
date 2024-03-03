@@ -26,10 +26,10 @@ namespace ChatBot.Controllers
             IBot bot
         )
         {
-            _adapter = adapter;
+            _adapter = adapter; 
             _bot = bot;
             azureChatBotSecret = Env.GetString("AZURE_BOT_SECRET");
-            azureChatUrl = Env.GetString("AzureChatBot:Url");
+            azureChatUrl = Env.GetString("AZURE_BOT_BASE_URL");
         }
 
         [HttpPost, HttpGet]
