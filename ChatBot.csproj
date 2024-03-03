@@ -23,6 +23,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="AdaptiveCards.Templating" Version="1.5.0" />
     <PackageReference Include="Azure.AI.Language.Conversations" Version="1.1.0" />
+    <PackageReference Include="DotNetEnv" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>
