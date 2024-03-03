@@ -71,6 +71,9 @@ namespace ChatBot
 
             services.AddScoped<IPaymentProvider, PaystackPaymentProvider>();
 
+            // Create the Bot Framework Authentication to be used with the Bot Adapter.
+            services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
+
             // Create the Bot Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
