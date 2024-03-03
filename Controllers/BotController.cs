@@ -7,7 +7,7 @@ using ChatBot.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
-using Microsoft.Extensions.Configuration;
+using DotNetEnv;
 using Newtonsoft.Json;
 
 namespace ChatBot.Controllers
@@ -20,19 +20,16 @@ namespace ChatBot.Controllers
         private readonly IBot _bot;
         private readonly string azureChatBotSecret;
         private readonly string azureChatUrl;
-        private readonly IConfiguration _configuration;
 
         public BotController(
             IBotFrameworkHttpAdapter adapter,
-            IBot bot,
-            IConfiguration configuration
+            IBot bot
         )
         {
             _adapter = adapter;
             _bot = bot;
-            _configuration = configuration;
-            azureChatBotSecret = _configuration["AzureChatBot:Secret"];
-            azureChatUrl = _configuration["AzureChatBot:Url"];
+            azureChatBotSecret = Env.GetString("AZURE_BOT_SECRET");
+            azureChatUrl = Env.GetString("AzureChatBot:Url");
         }
 
         [HttpPost, HttpGet]

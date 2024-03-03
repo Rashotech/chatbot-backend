@@ -15,6 +15,7 @@ using ChatBot.Services;
 using ChatBot.Services.Interfaces;
 using ChatBot.Dialogs;
 using ChatBot.Bots;
+using DotNetEnv;
 
 namespace ChatBot
 {
@@ -38,7 +39,7 @@ namespace ChatBot
             });
 
             services.AddDbContext<BankDbContext>(options => options
-            .UseSqlServer(Configuration.GetConnectionString("default"))
+            .UseSqlServer(Env.GetString("DB_URL"))
                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             );
 
@@ -51,8 +52,8 @@ namespace ChatBot
 
             services.AddHttpClient("Paystack", client =>
             {
-                client.BaseAddress = new Uri(Configuration["Paystack:BaseUrl"]);
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Configuration["Paystack:SecretKey"]}");
+                client.BaseAddress = new Uri(Env.GetString("PAYSTACK_BASE_URL"));
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Env.GetString("PAYSTACK_SECRET")}");
             });
 
             services.AddScoped<IPaymentProvider, PaystackPaymentProvider>();
@@ -72,13 +73,14 @@ namespace ChatBot
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
-                                  policy =>
-                                  {
-                                      policy
-                                      .AllowAnyOrigin()
-                                        .AllowAnyHeader()
-                                        .AllowAnyMethod();
-            });
+                    policy =>
+                    {
+                        policy
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                    }
+                );
             });
 
             // Create the Conversation state. (Used by the Dialog system itself.)
