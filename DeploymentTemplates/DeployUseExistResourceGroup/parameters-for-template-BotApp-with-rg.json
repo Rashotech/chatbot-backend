@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "appServiceName": {
-      "value": ""
+      "value": "fbnchatbot"
     },
     "existingAppServicePlanName": {
       "value": ""
@@ -12,10 +12,10 @@
       "value": ""
     },
     "newAppServicePlanName": {
-      "value": ""
+      "value": "fbnchatbot"
     },
     "newAppServicePlanLocation": {
-      "value": ""
+      "value": "eastus"
     },
     "newAppServicePlanSku": {
       "value": {
@@ -27,22 +27,22 @@
       }
     },
     "appType": {
-      "value": "MultiTenant"
+      "value": "UserAssignedMSI"
     },
     "appId": {
-      "value": ""
+      "value": "9e8d3818-cc56-48fa-9bef-f2b13d7721b8"
     },
     "appSecret": {
       "value": ""
     },
     "UMSIName": {
-      "value": ""
+      "value": "fbnchatbotusi"
     },
     "UMSIResourceGroupName": {
-      "value": ""
+      "value": "fbnchatbot"
     },
     "tenantId": {
-      "value": ""
+      "value": "06bf79e7-bbd2-4258-8c4e-256fcc138893"
     }
   }
 }
