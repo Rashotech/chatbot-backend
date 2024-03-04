@@ -34,6 +34,7 @@ namespace ChatBot.Dialogs
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 AuthenticateUser,
+                AccountBalanceNoticeAsync,
                 DisplayAccountBalance,
             }));
 
@@ -45,15 +46,19 @@ namespace ChatBot.Dialogs
             return await stepContext.BeginDialogAsync(nameof(AuthDialog), null, cancellationToken);
         }
 
+        private async Task<DialogTurnResult> AccountBalanceNoticeAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Please wait while we fetch your account balance..."), cancellationToken);
+                return await stepContext.NextAsync(cancellationToken: cancellationToken);
+        }
+
         private async Task<DialogTurnResult> DisplayAccountBalance(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-
             try
             {
-                var account = _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
+                var account = await _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
                 var balance = await _accountService.GetAccountBalanceAsync(account.Id);
-                var customer = await _customerService.GetCustomerInfoAsync(account.Id);
-
+                var customer = await _customerService.GetCustomerInfoAsync(account.CustomerId);
 
                 if (balance != null)
                 {
