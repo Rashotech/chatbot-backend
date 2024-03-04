@@ -7,7 +7,7 @@ namespace ChatBot.Repositories.Interfaces
 {
     public interface IComplaintRepository : IBaseRepository<Complaint>
     {
-        Task<List<Complaint>> GetAllComplaintsByComplaintNo(string complaintNo);
+        Task<List<Complaint>> GetAllComplaintsByComplaintNo(int accountId, string complaintNo);
         Task<Complaint> GetSingleComplaint(string complaintNo);
         Task<List<Complaint>> GetComplaintsByCategory(string category);
         Task<List<Complaint>> GetComplaintsByChannel(Channel channel);

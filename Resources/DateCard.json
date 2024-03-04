@@ -14,10 +14,7 @@
   "actions": [
     {
       "type": "Action.Submit",
-      "title": "Submit",
-      "data": {
-        "id": "1234567890"
-      }
+      "title": "Submit"
     }
   ]
 }

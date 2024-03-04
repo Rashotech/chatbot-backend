@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -31,11 +32,14 @@ namespace ChatBot.Database.Models
         
         public Channel Channel { get; set; }
 
-        [Required]
         public string Description { get; set; }
 
         public Status ComplaintStatus { get; set; }
 
+        public static explicit operator Complaint(List<Complaint> v)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public enum Channel
@@ -45,7 +49,7 @@ namespace ChatBot.Database.Models
         ChatBot,
         Mobile,
         USSD,
-        Internet,
+        Web,
         POS
     }
 

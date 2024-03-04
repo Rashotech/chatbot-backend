@@ -2,6 +2,7 @@
 using ChatBot.Database.Models;
 using System.Threading.Tasks;
 using ChatBot.Dtos;
+using System.Collections.Generic;
 
 namespace ChatBot.Services.Interfaces
 {
@@ -12,6 +13,7 @@ namespace ChatBot.Services.Interfaces
         Task<bool> DebitAccountAsync(int accountId, decimal amount);
         Task<Account> GetAccountByAccountNumber(string accountNumber);
         bool ValidateOtp(string otp);
+
     }
 }
 

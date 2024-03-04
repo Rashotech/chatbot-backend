@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -37,6 +38,11 @@ namespace ChatBot.Database.Models
         public string RecipientName { get; set; }
 
         public string RecipientBankName { get; set; }
+
+        public static explicit operator Transaction(List<Transaction> v)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public enum TransactionDirection
@@ -68,7 +74,7 @@ namespace ChatBot.Database.Models
         Mobile,
         USSD,
         Web,
-        Pos
+        POS
     }
 }
 

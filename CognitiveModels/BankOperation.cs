@@ -11,6 +11,8 @@ namespace ChatBot.CognitiveModels
             AccountOpening,
             BranchLocator,
             LogComplaints,
+            TrackComplaintStatus,
+            ManageComplaint,
             Cancel,
             BookFlight,
             CheckingBalance,

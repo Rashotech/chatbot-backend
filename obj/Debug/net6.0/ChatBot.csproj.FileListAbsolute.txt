@@ -193,3 +193,4 @@ C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\obj\Debug\n
 C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\ComplaintFormCard.json
 C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\DateCard.json
 C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\AmountCard.json
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\ComplaintDisplayCard.json

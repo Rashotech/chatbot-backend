@@ -6,8 +6,10 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,10 +22,13 @@ namespace ChatBot.Dialogs
         private readonly IAccountService _accountService;
         private readonly ICustomerService _customerService;
         private readonly IComplaintService _complaintService;
+        private readonly ITransactionService _transactionService;
+
         public LogComplaintDialog(
             IAccountService accountService,
             ICustomerService customerService,
             IComplaintService complaintService,
+            ITransactionService transactionService,
             AuthDialog authDialog,
             UserState userState
         )
@@ -32,28 +37,20 @@ namespace ChatBot.Dialogs
             _accountService = accountService;
             _customerService = customerService;
             _complaintService = complaintService;
+            _transactionService = transactionService;
             _accountInfoAccessor = userState.CreateProperty<Account>("Account");
             AddDialog(authDialog);
             AddDialog(new TextPrompt(nameof(TextPrompt)));
-            AddDialog(new AttachmentPrompt(nameof(AttachmentPrompt)));
             AddDialog(new ConfirmPrompt(nameof(ConfirmPrompt)));
             AddDialog(new AdaptiveCardPrompt(AdaptivePromptId));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-        AuthenticateUserAsync,
-        DisplayComplaintFormAsync,
-        ConfirmSubmission1Async,
-        SubmitComplaint1Async,
-        /*SelectComplaintCategory,
-        StoreCategory,
-        CheckForTransactionPlatform,
-        StorePlatform,
-        DescribeComplaint,
-        StoreDescription,
-        GetTransactionDateAsync,
-        GetTransactionAmount,
-        ConfirmSubmission2Async,
-        SubmitComplaint2Async,*/
+        
+        GetTransactionRefAsync,
+        StoreTransactionRefeAsync,
+        DescribeComplaintAsync2,
+        StoreDescription2Async,
+        SubmitComplaint3Async,
             }));
 
             InitialDialogId = nameof(WaterfallDialog);
@@ -61,267 +58,127 @@ namespace ChatBot.Dialogs
 
         }
 
-        private async Task<DialogTurnResult> AuthenticateUserAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> GetTransactionRefAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            return await stepContext.BeginDialogAsync(nameof(AuthDialog), null, cancellationToken);
-        }
-
-        private async Task<DialogTurnResult> DisplayComplaintFormAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            var cardAttachment = AdaptiveCardHelper.CreateAdaptiveCardAttachment("ComplaintFormCard");
-
-            var opts = new PromptOptions
-            {
-                Prompt = new Activity
-                {
-                    Attachments = new List<Attachment>() {
-                            cardAttachment
-                        },
-                    Type = ActivityTypes.Message,
-                    Text = "Lets log your complaint!",
-                }
-            };
-
-            return await stepContext.PromptAsync(AdaptivePromptId, opts, cancellationToken);
-        }
-
-        private async Task<DialogTurnResult> ConfirmSubmission1Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            var complaint = (LogComplaintDto)stepContext.Options;
-            complaint = JsonConvert.DeserializeObject<LogComplaintDto>(stepContext.Result.ToString());
-            stepContext.Values["Complaint"] = complaint;
-            var account = await _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
-            stepContext.Values["Account"] = account;
-
-            var confirmationMessage = $"Thank you for providing your data.\n\n" +
-                                       $"Account Number: {account.AccountNumber}\n\n" +
-                                       $"Category: {complaint.Category}\n\n" +
-                                       $"Platform: {complaint.Channel}\n\n" +
-                                       $"Date: {complaint.Date}\n\n" +
-                                       $"Ref: {complaint.TransactionRef}\n\n" +
-                                       $"Description: {complaint.Description}\n\n" +
-                                       $"Amount: {complaint.Amount}\n\n" +
-                                       $"Please confirm your details above. Is this correct?";
-
-            var promptMessage = MessageFactory.Text(confirmationMessage);
-            return await stepContext.PromptAsync(nameof(ConfirmPrompt), new PromptOptions { Prompt = promptMessage }, cancellationToken);
-        }
-
-        private async Task<DialogTurnResult> SelectComplaintCategory(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            stepContext.Values["AccountNumber"] = (string)stepContext.Result;
-
-            var reply = MessageFactory.Text("What category of complaint would you like to make?");
-
-            reply.SuggestedActions = new SuggestedActions()
-            {
-                Actions = new List<CardAction>()
-        {
-            new CardAction() { Title = "Money Transfer", Type = ActionTypes.ImBack, Value = "Money Transfer" },
-            new CardAction() { Title = "Bill Payment", Type = ActionTypes.ImBack, Value = "Bill Payment" },
-            new CardAction() { Title = "Airtime Purchase", Type = ActionTypes.ImBack, Value = "Airtime Purchase" },
-            new CardAction() { Title = "Withdrawal", Type = ActionTypes.ImBack, Value = "Withdrawal" },
-            new CardAction() { Title = "Others", Type = ActionTypes.ImBack, Value = "Others" },
-        },
-            };
+            var reply = MessageFactory.Text("Can I have the Transaction Reference number? The one starting with 'TRX...'");
 
             await stepContext.Context.SendActivityAsync(reply, cancellationToken);
-
             return Dialog.EndOfTurn;
         }
-
-        private async Task<DialogTurnResult> StoreCategory(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> StoreTransactionRefeAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var category = (string)stepContext.Result;
-            stepContext.Values["category"] = category;
-            return await stepContext.NextAsync(null, cancellationToken);
-        }
+            Account account = await _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
+            stepContext.Values["Account"] = account;
 
-        private async Task<DialogTurnResult> CheckForTransactionPlatform(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
+            string transactionRef = (string)stepContext.Result;
+            transactionRef = transactionRef.Trim().ToUpper();
+            stepContext.Values["transactionRef"] = transactionRef;
+            Transaction transaction;
 
-            string category = (string)stepContext.Values["category"];
-
-            if (category == "Bill Payment" || category == "Money Transfer")
+            try
             {
-                var reply = MessageFactory.Text("What platform did you use fior this transaction?");
+                List<Transaction> transactions = await _transactionService.GetTransactionsByReferenceAsync(account.Id, transactionRef);
+                transaction = transactions.FirstOrDefault();
+                stepContext.Values["transaction"] = transaction;
 
-                reply.SuggestedActions = new SuggestedActions()
+                string status = "";
+                switch (transaction.Status)
                 {
-                    Actions = new List<CardAction>()
-        {
-            new CardAction() { Title = "POS", Type = ActionTypes.ImBack, Value = "POS" },
-            new CardAction() { Title = "ATM", Type = ActionTypes.ImBack, Value = "ATM" },
-            new CardAction() { Title = "Web", Type = ActionTypes.ImBack, Value = "Web" },
-            new CardAction() { Title = "Chat Banking", Type = ActionTypes.ImBack, Value = "Chat Banking" },
-            new CardAction() { Title = "Internet Banking", Type = ActionTypes.ImBack, Value = "Internet Banking" },
-            new CardAction() { Title = "Mobile Banking", Type = ActionTypes.ImBack, Value = "Mobile Banking" },
-        },
-                };
+                    case (TransactionStatus)0:
+                        status += "is pending";
+                        break;
+                    case (TransactionStatus)1:
+                        status += "went through successfully";
+                        break;
+                    case (TransactionStatus)2:
+                        status += "failed";
+                        break;
 
-                await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+                    case (TransactionStatus)3:
+                        status += "has been reversed";
+                        break;
 
-                return Dialog.EndOfTurn;
+                }
+                string successMessage1 = $"Hmmm... I can see that on {transaction.CreatedAt.ToLongDateString()}, You made a {Enum.GetName(typeof(TransactionType), transaction.TransactionType)} of NGN{transaction.Amount:N2} using the {Enum.GetName(typeof(TransactionChannel), transaction.Channel)} to {transaction.RecipientName} with account number {transaction.RecipientAccountNumber} at {transaction.RecipientBankName}.";
+                string successMessage2 = $"From my end, I can see that the transaction {status}. Is this the transaction you would like to make a complaint about?";
+
+                var message = MessageFactory.Text(transactions != null
+                ? $"{successMessage1}\n\n {successMessage2}"
+                : "I'm sorry, no transactions exist with that reference.");
+
+                return await stepContext.PromptAsync(nameof(ConfirmPrompt), new PromptOptions { Prompt = message }, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                string message = $"I'm having a hard time finding the transaction...{ex.Message}";
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
+                return await stepContext.ReplaceDialogAsync(InitialDialogId, message, cancellationToken);
             }
 
-            return await stepContext.NextAsync(null, cancellationToken);
         }
-
-        private async Task<DialogTurnResult> StorePlatform(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> DescribeComplaintAsync2(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var platform = "";
-            string category = (string)stepContext.Values["category"];
-
-            if (stepContext.Result != null && (string)stepContext.Result != category)
-            {
-                platform = (string)stepContext.Result;
-            }
-
-            stepContext.Values["platform"] = platform;
-            return await stepContext.NextAsync(null, cancellationToken);
-        }
-
-
-        private async Task<DialogTurnResult> GetTransactionDateAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            var cardAttachment = AdaptiveCardHelper.CreateAdaptiveCardAttachment("DateCard");
-
-            var opts = new PromptOptions
-            {
-                Prompt = new Activity
-                {
-                    Attachments = new List<Attachment>() {
-                            cardAttachment
-                        },
-                    Type = ActivityTypes.Message,
-                    Text = "When did you carry out this transaction?!",
-                }
-            };
-
-            return await stepContext.PromptAsync(AdaptivePromptId, opts, cancellationToken);
-        }
-        
-        private async Task<DialogTurnResult> GetTransactionAmount(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            var date = stepContext.Result;
-            stepContext.Values["date"] = date;
-
-            var cardAttachment = AdaptiveCardHelper.CreateAdaptiveCardAttachment("AmountCard");
-
-            var opts = new PromptOptions
-            {
-                Prompt = new Activity
-                {
-                    Attachments = new List<Attachment>() {
-                            cardAttachment
-                        },
-                    Type = ActivityTypes.Message,
-                    Text = "When did you carry out this transaction?!",
-                }
-            };
-
-            return await stepContext.PromptAsync(AdaptivePromptId, opts, cancellationToken);
-
-
-        }
-
-
-
-        private async Task<DialogTurnResult> DescribeComplaint(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            var promptMessage = MessageFactory.Text("Please describe the issue you're experiencing.");
-            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = promptMessage }, cancellationToken);
-        }
-
-        private async Task<DialogTurnResult> StoreDescription(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            var moreDescription = (string)stepContext.Result;
-            stepContext.Values["moreDescription"] = moreDescription;
-            return await stepContext.NextAsync(null, cancellationToken);
-        }
-        
-        private async Task<DialogTurnResult> ConfirmSubmission2Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            var amount = stepContext.Result;
-            var date = (object)stepContext.Values["date"];
-            string category = (string)stepContext.Values["category"];
-            string platform = stepContext.Values.ContainsKey("platform") ? (string)stepContext.Values["platform"] : "";
-            string moreDescription = (string)stepContext.Values["moreDescription"];
-
-            var confirmationMessage = $"Please confirm that the following details are correct:\n\n" +
-                                        $"Complaint Description: {moreDescription} \n\n" +
-                                        $"Category: {category}\n\n" +
-                                        $"{(platform.Length > 0 ? $"Platform: {platform}\n\n" : "")}" +
-                                        $"Transaction Date: {date} \n\n" +
-                                        $"Amount: {amount} \n\n";
-
-            var promptMessage = MessageFactory.Text(confirmationMessage);
-            return await stepContext.PromptAsync(nameof(ConfirmPrompt), new PromptOptions { Prompt = promptMessage }, cancellationToken);
-        }
-
-
-
-
-        private async Task<DialogTurnResult> SubmitComplaint2Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            // Submit the complaint to the backend system or support team
             var confirmed = (bool)stepContext.Result;
             if (confirmed)
             {
-                // Submit the complaint and provide feedback to the user
-                await stepContext.Context.SendActivityAsync("Your complaint has been successfully submitted. Our support team will get back to you shortly.");
+                var promptMessage = MessageFactory.Text("Before I log your complaint, please tell me, what challenges did you face with this transaction.");
+                return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = promptMessage }, cancellationToken);
             }
             else
             {
-                // If the user didn't confirm, provide appropriate feedback
-                await stepContext.Context.SendActivityAsync("Your complaint submission has been cancelled.");
+                string message = $"Oops! Sorry about that. Let's try another transaction.";
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
+                return await stepContext.ReplaceDialogAsync(InitialDialogId, message, cancellationToken);
             }
+        }
+        private async Task<DialogTurnResult> StoreDescription2Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            var description = (string)stepContext.Result;
+            stepContext.Values["description"] = description;
+            await stepContext.Context.SendActivityAsync(MessageFactory.Text($"I'm really sorry you had to experience any difficulties at all."), cancellationToken);
+            await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Please hold on while I log your complaint..."), cancellationToken);
+            return await stepContext.NextAsync(null, cancellationToken);
+        }
+        private async Task<DialogTurnResult> SubmitComplaint3Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            Account account = (Account)stepContext.Values["Account"];
+            Transaction transaction = (Transaction)stepContext.Values["transaction"];
+            int amount = transaction.Amount;
+            DateTime date = transaction.CreatedAt.Date;
+            string category = Enum.GetName(typeof(TransactionType), transaction.TransactionType);
+            Channel channel = (Channel)transaction.Channel;
+            string transactionRef = transaction.TransactionReference;
+            string description = (string)stepContext.Values["description"];
+
+
+            var logComplaintDto = new LogComplaintDto
+            {
+                Channel = channel,
+                Amount = amount,
+                Description = description,
+                Date = date,
+                Category = category,
+                AccountId = account.Id,
+                TransactionRef = transactionRef
+
+            };
+
+
+            var complaint = await _complaintService.LogComplaintAsync(logComplaintDto);
+
+
+
+            await stepContext.Context.SendActivityAsync("Your complaint has been successfully submitted. Our support team will get back to you shortly.\n\n" +
+                $"You can track the status of your complaint with your Complaint Number: {complaint.ComplaintNo}.\n\n" +
+                $"Until it is resolved, the status remainis {complaint.ComplaintStatus}");
+
+
 
             // End the dialog
             return await stepContext.EndDialogAsync(null, cancellationToken);
         }
 
-        private async Task<DialogTurnResult> SubmitComplaint1Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            try
-            {
-                // Check if the user has confirmed the submission
-                if ((bool)stepContext.Result != false)
-                {
-                    // Check if the complaint details exist in stepContext.Values
-                    if (stepContext.Values.TryGetValue("Complaint", out var complaintObj) && complaintObj is LogComplaintDto complaintInfo)
-                    {
-                        // Log the complaint
-                        await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Hold on, I'm logging your complaint..."), cancellationToken);
-                        var account = (Account)stepContext.Values["Account"];
-                        complaintInfo.AccountId = account.Id;
-                        var complaint = await _complaintService.LogComplaintAsync(complaintInfo);
-                        var response = $"Your complaint has been logged successfully. Your new Complaint ID is '{complaint.ComplaintNo}'.";
-                        await stepContext.Context.SendActivityAsync(MessageFactory.Text(response), cancellationToken);
-                        return await stepContext.EndDialogAsync(complaintInfo, cancellationToken);
-                    }
-                    else
-                    {
-                        // Handle case where complaint details are missing
-                        var promptMessage = "Kindly fill the form again with the right details";
-                        return await stepContext.ReplaceDialogAsync(InitialDialogId, promptMessage, cancellationToken);
-                    }
-                }
-                else
-                {
-                    // Handle case where user didn't confirm the submission
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Kindly fill the form again with the right details"), cancellationToken);
-                    return await stepContext.ReplaceDialogAsync(nameof(DisplayComplaintFormAsync), null, cancellationToken);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle specific exceptions and provide appropriate feedback
-                var errorMessage = $"An error occurred while processing your complaint. Please try again later. {ex.Message}";
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text(errorMessage), cancellationToken);
-                return await stepContext.CancelAllDialogsAsync(cancellationToken);
-            }
-        }
+
 
     }
 
@@ -329,3 +186,6 @@ namespace ChatBot.Dialogs
 }
 
 
+//3121539729
+//TRX2024022603155642
+//comp-1914079465

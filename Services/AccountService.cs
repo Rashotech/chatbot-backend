@@ -6,12 +6,15 @@ using ChatBot.Services.Interfaces;
 using ChatBot.Dtos;
 using ChatBot.Utils;
 using ChatBot.Exceptions;
+using System.Collections.Generic;
+using ChatBot.Database;
 
 namespace ChatBot.Services
 {
 	public class AccountService: IAccountService
 	{
-		private readonly IUnitOfWork _unitOfWork;
+
+        private readonly IUnitOfWork _unitOfWork;
 		private readonly ICustomerService _customerService;
 		private readonly string defaultOtp = "123456";
 
@@ -116,6 +119,7 @@ namespace ChatBot.Services
 			}
 		   
 		}
-	}
+
+    }
 }
 

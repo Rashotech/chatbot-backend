@@ -51,6 +51,7 @@ namespace ChatBot
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IComplaintService, ComplaintService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<IComplaintRepository, ComplaintRepository>();
 
             services.AddHttpClient("Paystack", client =>
             {
@@ -94,7 +95,9 @@ namespace ChatBot
             services.AddScoped<OpenAccounDialog>();
             services.AddScoped<AuthDialog>();
             services.AddScoped<CheckAccountBalanceDialog>();
+            services.AddScoped<ManageComplaintDialog>();
             services.AddScoped<LogComplaintDialog>();
+            services.AddScoped<TrackComplaintDialog>();
 
             services.AddScoped<MainDialog>();
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.

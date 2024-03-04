@@ -19,11 +19,19 @@ namespace ChatBot.Repositories
             _DbContext = context;
         }
 
-        public async Task<List<Complaint>> GetAllComplaintsByComplaintNo(string complaintNo)
+        public async Task<List<Complaint>> GetAllComplaintsByComplaintNo(int accountId, string complaintNo)
         {
-            return await _DbContext.Complaints
-                .Where(c => c.ComplaintNo == complaintNo)
-                .ToListAsync();
+            try
+            {
+                return await _DbContext.Complaints
+                .Where(c => c.AccountId == accountId && c.ComplaintNo == complaintNo).ToListAsync();
+            }
+            catch (Exception)
+            {
+                return new List<Complaint>();
+
+
+            }
         }
 
         public async Task<Complaint> GetSingleComplaint(string complaintNo)
