@@ -25,7 +25,6 @@
     <PackageReference Include="Azure.AI.Language.Conversations" Version="1.1.0" />
     <PackageReference Include="DotNetEnv" Version="3.0.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
-    <PackageReference Include="Microsoft.Bot.Builder.AI.QnA" Version="4.22.2" />
   </ItemGroup>
 
   <ItemGroup>
