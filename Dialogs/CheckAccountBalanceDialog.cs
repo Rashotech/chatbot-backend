@@ -33,8 +33,8 @@ namespace ChatBot.Dialogs
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-        AuthenticateUser,
-        DisplayAccountBalance,
+                AuthenticateUser,
+                DisplayAccountBalance,
             }));
 
             InitialDialogId = nameof(WaterfallDialog);
@@ -114,15 +114,7 @@ namespace ChatBot.Dialogs
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text(ex.Message), cancellationToken);
                 return await stepContext.EndDialogAsync(null, cancellationToken);
             }
-
-
-
-
-
-
         }
-
-
     }
 }
 

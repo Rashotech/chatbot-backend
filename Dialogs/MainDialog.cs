@@ -6,6 +6,7 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,13 +17,16 @@ namespace ChatBot.Dialogs
     {
         private readonly BankOperationRecognizer _cluRecognizer;
         protected readonly ILogger Logger;
+        private readonly string ConfirmDlgId = "ConfirmDlgId";
+        private readonly string Confirm2DlgId = "Confirm2DlgId";
 
         public MainDialog(
             BankOperationRecognizer cluRecognizer,
-            OpenAccounDialog openAccounDialog,
+            OpenAccountDialog openAccountDialog,
             FundTransferDialog fundTransferDialog,
             CheckAccountBalanceDialog checkAccountBalanceDialog,
             TransactionHistoryDialog transactionHistoryDialog,
+            FeedbackDialog feedbackDialog,
             ILogger<MainDialog> logger
         )
             : base(nameof(MainDialog))
@@ -31,14 +35,20 @@ namespace ChatBot.Dialogs
             Logger = logger;
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
-            AddDialog(openAccounDialog);
+            AddDialog(openAccountDialog);
             AddDialog(fundTransferDialog);
             AddDialog(checkAccountBalanceDialog);
             AddDialog(transactionHistoryDialog);
+            AddDialog(feedbackDialog);
+            AddDialog(new ConfirmPrompt(ConfirmDlgId));
+            AddDialog(new ConfirmPrompt(Confirm2DlgId));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 IntroStepAsync,
                 ActStepAsync,
+                AskForFeedBackStepAsync,
+                ProcessFeedBackStepAsync,
+                AskForAnotherTransactionStepAsync,
                 FinalStepAsync,
             }));
 
@@ -77,7 +87,7 @@ namespace ChatBot.Dialogs
                 switch (userInput)
                 {
                     case nameof(BankOperationIntent.OpenAccount):
-                        return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), new OpenAccountDto(), cancellationToken);
+                        return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), new OpenAccountDto(), cancellationToken);
                         
                     case nameof(BankOperationIntent.FundTransfer):
                         return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
@@ -105,7 +115,7 @@ namespace ChatBot.Dialogs
                 switch (cluResult.GetTopIntent().intent)
                 {
                     case BankOperation.Intent.AccountOpening:
-                        return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), null, cancellationToken);
+                        return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), null, cancellationToken);
 
                     case BankOperation.Intent.FundTransfer:
                         return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
@@ -129,28 +139,61 @@ namespace ChatBot.Dialogs
             return await stepContext.NextAsync(null, cancellationToken);
         }
 
+        private async Task<DialogTurnResult> AskForFeedBackStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            var messageText = "Would you like to share feedback?";
+            var promptMessage = MessageFactory.Text(messageText, messageText, InputHints.ExpectingInput);
+            return await stepContext.PromptAsync(ConfirmDlgId, new PromptOptions
+            {
+                Prompt = promptMessage
+            }, cancellationToken);
+        }
+
+        private async Task<DialogTurnResult> ProcessFeedBackStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            if ((bool)stepContext.Result != false)
+            {
+                return await stepContext.BeginDialogAsync(nameof(FeedbackDialog), new OpenAccountDto(), cancellationToken);
+            }
+
+            return await stepContext.NextAsync(null, cancellationToken);
+        }
+
+        private async Task<DialogTurnResult> AskForAnotherTransactionStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            var messageText = "Do you want to carry out another transaction?";
+            var promptMessage = MessageFactory.Text(messageText, messageText, InputHints.ExpectingInput);
+            return await stepContext.PromptAsync(Confirm2DlgId, new PromptOptions
+            {
+                Prompt = promptMessage
+            }, cancellationToken);
+        }
+
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var messageText = $"Thanks for banking with us";
-            var message = MessageFactory.Text(messageText, messageText, InputHints.IgnoringInput);
-            await stepContext.Context.SendActivityAsync(message, cancellationToken);
+            if ((bool)stepContext.Result != false)
+            {
+                return await stepContext.ReplaceDialogAsync(InitialDialogId, null, cancellationToken);
+            }
 
-            var promptMessage = "What else can I do for you?";
-            return await stepContext.ReplaceDialogAsync(InitialDialogId, promptMessage, cancellationToken);
+            var messageText = $"Thanks for banking with us";
+            var endMessage = MessageFactory.Text(messageText, messageText, InputHints.IgnoringInput);
+            await stepContext.Context.SendActivityAsync(endMessage, cancellationToken);
+            return await stepContext.CancelAllDialogsAsync(cancellationToken);
         }
 
         public static bool IsButtonClickActivity(IMessageActivity activity)
-        {
-            if (activity.Type == ActivityTypes.Message && activity.ChannelData != null)
             {
-                JObject channelData = JObject.FromObject(activity.ChannelData);
-                if (channelData["postBack"] != null)
+                if (activity.Type == ActivityTypes.Message && activity.ChannelData != null)
                 {
-                    return true;
+                    JObject channelData = JObject.FromObject(activity.ChannelData);
+                    if (channelData["postBack"] != null)
+                    {
+                        return true;
+                    }
                 }
-            }
 
-            return false;
+                return false;
+            }
         }
-    }
 }

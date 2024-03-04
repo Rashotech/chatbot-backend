@@ -9,16 +9,17 @@ using ChatBot.Dtos;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using ChatBot.Services.Interfaces;
+using System.Linq;
 
 namespace ChatBot.Dialogs
 {
-    public class OpenAccounDialog : CancelAndHelpDialog
+    public class OpenAccountDialog : CancelAndHelpDialog
     {
         private const string AdaptivePromptId = "adaptive";
         private readonly IAccountService _accountService;
 
-        public OpenAccounDialog(IAccountService accountService)
-        : base(nameof(OpenAccounDialog))
+        public OpenAccountDialog(IAccountService accountService)
+        : base(nameof(OpenAccountDialog))
         {
             _accountService = accountService;
             AddDialog(new AdaptiveCardPrompt(AdaptivePromptId));
@@ -58,6 +59,20 @@ namespace ChatBot.Dialogs
         {
             var accountInfo = (OpenAccountDto)stepContext.Options;
             accountInfo = JsonConvert.DeserializeObject<OpenAccountDto>(stepContext.Result.ToString());
+
+            var validator = new OpenAccountDtoValidator();
+            var validationResult = await validator.ValidateAsync(accountInfo, cancellationToken);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors
+                    .Select(err => err.ErrorMessage)
+                    .Aggregate((allErrors, nextError) => $"{allErrors}\n- {nextError}");
+
+                await stepContext.Context.SendActivityAsync($"The following validation errors occurred:\n- {errors}", cancellationToken: cancellationToken);
+                return await stepContext.ReplaceDialogAsync(InitialDialogId, null, cancellationToken);
+            }
+
             stepContext.Values["AccountInfo"] = accountInfo;
 
             var messageText = $"Thank you for providing your data.\n\n" +
