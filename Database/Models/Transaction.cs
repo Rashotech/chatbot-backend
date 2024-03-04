@@ -24,6 +24,8 @@ namespace ChatBot.Database.Models
         [Required]
         public TransactionChannel Channel { get; set; }
 
+        public string Currency { get; set; } = "NGN";
+
         public TransactionStatus Status { get; set; } = TransactionStatus.Pending;
 
         [Required]
