@@ -69,7 +69,14 @@ namespace ChatBot
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Env.GetString("PAYSTACK_SECRET")}");
             });
 
+            services.AddHttpClient("SendChamp", client =>
+            {
+                client.BaseAddress = new Uri(Env.GetString("SENDCHAMP_BASE_URL"));
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Env.GetString("SENDCHAMP_SECRET")}");
+            });
+
             services.AddScoped<IPaymentProvider, PaystackPaymentProvider>();
+            services.AddScoped<INotificationProvider, SendChampNotificationProvider>();
 
             // Create the Bot Framework Authentication to be used with the Bot Adapter.
             services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();

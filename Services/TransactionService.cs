@@ -20,9 +20,9 @@ namespace ChatBot.Services
             _accountService = accountService;
         }
 
-        public async Task<IEnumerable<TransactionDto>> GetAccountTransactionsAsync(int accountId, int page = 1, int limit = 5)
+        public async Task<IEnumerable<TransactionDto>> GetAccountTransactionsAsync(int accountId, int limit = 5)
         {
-            var transactions = await _unitOfWork.Transactions.GetByPageAsync(t => t.Account.Id.Equals(accountId), page, limit);
+            var transactions = await _unitOfWork.Transactions.GetTransactions(accountId, limit);
             return transactions.Select(t => new TransactionDto
             {
                 AccountId = t.AccountId,

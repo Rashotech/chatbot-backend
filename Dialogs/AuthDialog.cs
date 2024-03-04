@@ -17,21 +17,28 @@ namespace ChatBot.Dialogs
         private const string AdaptivePromptId = "adaptive";
         private readonly IAccountService _accountService;
         private readonly ICustomerService _customerService;
+        private readonly INotificationProvider _notificationProvider;
         private readonly string AccountNumberDlgId = "AccountNumberDlgId";
         private readonly string SendOtpDlgId = "SendOtpDlgId";
         private readonly string ConfirmOtpDlgId = "ConfirmOtpDlgId";
         private readonly string DataNoticeDlgId = "DataNoticeDlgId";
         private bool hasAcceptedDataNotice = false;
 
-        public AuthDialog(IAccountService accountService, ICustomerService customerService, UserState userState)
+        public AuthDialog(
+            IAccountService accountService,
+            ICustomerService customerService,
+            INotificationProvider notificationProvider,
+            UserState userState
+        )
         : base(nameof(AuthDialog))
         {
             _accountInfoAccessor = userState.CreateProperty<Account>("Account");
             _accountService = accountService;
             _customerService = customerService;
+            _notificationProvider = notificationProvider;
             AddDialog(new TextPrompt(AccountNumberDlgId, AccountNumberValidator));
             AddDialog(new TextPrompt(DataNoticeDlgId));
-            AddDialog(new TextPrompt(SendOtpDlgId, OtpValidator));
+            AddDialog(new TextPrompt(SendOtpDlgId));
             AddDialog(new TextPrompt(ConfirmOtpDlgId));
             AddDialog(new ConfirmPrompt(nameof(ConfirmPrompt)));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -40,6 +47,7 @@ namespace ChatBot.Dialogs
                 DataNoticeStepAsync,
                 AcknowledgeDataNoticeStepAsync,
                 ConfirmAccountNumberStepAsync,
+                OtpSendingNoticeStepAsync,
                 SendOtpStepAsync,
                 ConfirmOtpStepAsync
             }));
@@ -108,12 +116,10 @@ namespace ChatBot.Dialogs
             {
                 var accountNumber = (string)stepContext.Values["AccountNumber"];
                 var account = await _accountService.GetAccountByAccountNumber(accountNumber);
-                var customer = await _customerService.GetCustomerInfoAsync(account.Id);
+                var customer = await _customerService.GetCustomerInfoAsync(account.CustomerId);
 
-                await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
-
-                stepContext.Values["Customer"] = customer;
-                stepContext.Values["Account"] = account;
+                stepContext.Values["account"] = account;
+                stepContext.Values["customer"] = customer;
 
                 var messageText = $"Are you {customer.FirstName}?";
                 var promptMessage = MessageFactory.Text(messageText, messageText, InputHints.ExpectingInput);
@@ -127,36 +133,73 @@ namespace ChatBot.Dialogs
             }
         }
 
-        private async Task<DialogTurnResult> SendOtpStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> OtpSendingNoticeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             if ((bool)stepContext.Result != false)
             {
-                var customer = (Customer)stepContext.Values["Customer"];
-                var promptText = $"Kindly enter OTP sent to your phone number ending with {customer.PhoneNumber.Substring(customer.PhoneNumber.Length - 4)}";
-
-                var promptOptions = new PromptOptions
-                {
-                    Prompt = MessageFactory.Text(promptText),
-                    RetryPrompt = MessageFactory.Text("Wrong OTP, Kindly input Correct Otp."),
-                };
-
-                return await stepContext.PromptAsync(SendOtpDlgId, promptOptions, cancellationToken);
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Sending OTP to your registered phone number"), cancellationToken);
+                return await stepContext.NextAsync();
             }
 
             return await stepContext.ReplaceDialogAsync(InitialDialogId, null, cancellationToken);
         }
 
-        private async Task<DialogTurnResult> ConfirmOtpStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> SendOtpStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var otp = (string)stepContext.Result;
-            var isOtpValid = _accountService.ValidateOtp(otp);
-            if(!isOtpValid)
+            try
             {
-                var promptText = "Wrong OTP, Kindly input Correct Otp";
+                var customer = (Customer)stepContext.Values["customer"];
+                var phoneNumber = "234" + customer.PhoneNumber.Substring(1);
+                var reference = await _notificationProvider.SendOtpAsync(phoneNumber);
+                stepContext.Values["reference"] = reference;
+
+                var promptText = $"Kindly enter OTP sent to your phone number ending with {customer.PhoneNumber.Substring(phoneNumber.Length - 4)}";
                 var promptOptions = new PromptOptions
                 {
                     Prompt = MessageFactory.Text(promptText),
                 };
+
+                return await stepContext.PromptAsync(SendOtpDlgId, promptOptions, cancellationToken);
+            } catch(Exception)
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Unable to Send OTP"), cancellationToken);
+                return await stepContext.ReplaceDialogAsync(InitialDialogId, null, cancellationToken);
+            }
+
+        }
+
+        private async Task<DialogTurnResult> ConfirmOtpStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            var promptText = "Wrong OTP, Kindly input Correct OTP";
+            var promptOptions = new PromptOptions
+            {
+                Prompt = MessageFactory.Text(promptText),
+            };
+
+            try
+            {
+                var otp = (string)stepContext.Result;
+                var isOtpValid = _accountService.ValidateOtp(otp);
+                var account = (Account)stepContext.Values["account"];
+
+                if(isOtpValid)
+                {
+                    await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
+                    return await stepContext.EndDialogAsync();
+                }
+
+                var reference = (string)stepContext.Values["reference"];
+                var isOtpVerified = await _notificationProvider.VerifyOtpAsyc(reference, otp);
+
+                if (!isOtpVerified)
+                {
+                    return await stepContext.PromptAsync(ConfirmOtpDlgId, promptOptions, cancellationToken);
+                }
+
+                await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
+            }
+            catch (Exception)
+            {
                 return await stepContext.PromptAsync(ConfirmOtpDlgId, promptOptions, cancellationToken);
             }
 

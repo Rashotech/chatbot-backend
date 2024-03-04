@@ -21,7 +21,6 @@ namespace ChatBot.Repositories
         public async Task<Customer> GetCustomerInfo(int customerId)
         {
             return await _DbContext.Customers
-                       .Include(a => a.Accounts)
                        .SingleOrDefaultAsync(a => a.Id == customerId);
         }
     }

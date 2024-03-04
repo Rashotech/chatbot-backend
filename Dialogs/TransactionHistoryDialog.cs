@@ -55,24 +55,24 @@ namespace ChatBot.Dialogs
 
         private async Task<DialogTurnResult> TransactionHistoryStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var account = _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
+            var account = await _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
             var transactions = await _transactionService.GetAccountTransactionsAsync(account.Id);
 
-            if(!transactions.Any())
-            {
-                var text = "No Transactions yet, Kindly carry out a transaction today!";
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text(text), cancellationToken);
-            }
-            else
+            if(transactions.Any())
             {
                 var adaptiveCardAttachment = AdaptiveCardHelper.CreateTableAdaptiveCardAttachment("TransactionTableCard", transactions,
-                      getNarration: trx => trx.Narration,
-                      getAmount: trx => $"{trx.Direction} {trx.Currency} {trx.Amount}",
-                      getDate: trx => trx.Date.ToLongDateString()
-                );
+                     getNarration: trx => trx.Narration,
+                     getAmount: trx => $"{trx.Direction} {trx.Currency} {trx.Amount}",
+                     getDate: trx => trx.Date.ToString("dddd, MMMM d, yyyy hh:mmtt")
+               );
 
                 var message = MessageFactory.Attachment(adaptiveCardAttachment);
                 await stepContext.Context.SendActivityAsync(message, cancellationToken);
+            }
+            else
+            {
+                var text = "No Transactions yet, Kindly carry out a transaction today!";
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text(text), cancellationToken);
             }
 
             return await stepContext.EndDialogAsync(null, cancellationToken);
