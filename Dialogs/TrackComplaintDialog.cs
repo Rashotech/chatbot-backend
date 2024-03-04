@@ -5,6 +5,7 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,8 +45,6 @@ namespace ChatBot.Dialogs
             }));
 
             InitialDialogId = nameof(WaterfallDialog);
-
-
         }
 
         private async Task<DialogTurnResult> GetComplaintNoAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
