@@ -1,5 +1,6 @@
 ﻿using ChatBot.Database.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Linq;
 using System.Threading;
@@ -18,6 +19,8 @@ namespace ChatBot.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Account>()
                 .HasOne(a => a.Customer)
                 .WithMany(c => c.Accounts)
@@ -33,6 +36,26 @@ namespace ChatBot.Database
                 .WithMany(r => r.Complaints)
                 .HasForeignKey(c => c.AccountId);
 
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType.IsEnum)
+                    {
+                        var type = typeof(EnumToStringConverter<>).MakeGenericType(property.ClrType);
+                        var converter = Activator.CreateInstance(type, new ConverterMappingHints()) as ValueConverter;
+
+                        property.SetValueConverter(converter);
+                    }
+                    else if (Nullable.GetUnderlyingType(property.ClrType)?.IsEnum == true)
+                    {
+                        var type = typeof(EnumToStringConverter<>).MakeGenericType(Nullable.GetUnderlyingType(property.ClrType)!);
+                        var converter = Activator.CreateInstance(type, new ConverterMappingHints()) as ValueConverter;
+
+                        property.SetValueConverter(converter);
+                    }
+                }
+            }
         }
 
         public override int SaveChanges()
