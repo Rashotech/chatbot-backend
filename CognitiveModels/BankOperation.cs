@@ -14,11 +14,9 @@ namespace ChatBot.CognitiveModels
             TrackComplaintStatus,
             ManageComplaint,
             Cancel,
-            BookFlight,
             CheckingBalance,
             FundTransfer,
-            GetWeather,
-            TransactionHistory,
+            GetTransactionHistory,
             None
         }
 

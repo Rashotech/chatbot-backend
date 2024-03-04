@@ -1,5 +1,3 @@
-﻿// Generated with ChatBot .NET Template version v4.22.0
-
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,6 +15,7 @@ using ChatBot.Services;
 using ChatBot.Services.Interfaces;
 using ChatBot.Dialogs;
 using ChatBot.Bots;
+using DotNetEnv;
 
 namespace ChatBot
 {
@@ -38,9 +37,22 @@ namespace ChatBot
             {
                 options.SerializerSettings.MaxDepth = HttpHelper.BotMessageSerializerSettings.MaxDepth;
             });
+            
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    policy =>
+                    {
+                        policy
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                    }
+                );
+            });
 
             services.AddDbContext<BankDbContext>(options => options
-            .UseSqlServer(Configuration.GetConnectionString("default"))
+            .UseSqlServer(Env.GetString("DB_URL"))
                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             );
 
@@ -55,11 +67,18 @@ namespace ChatBot
 
             services.AddHttpClient("Paystack", client =>
             {
-                client.BaseAddress = new Uri(Configuration["Paystack:BaseUrl"]);
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Configuration["Paystack:SecretKey"]}");
+                client.BaseAddress = new Uri(Env.GetString("PAYSTACK_BASE_URL"));
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Env.GetString("PAYSTACK_SECRET")}");
+            });
+
+            services.AddHttpClient("SendChamp", client =>
+            {
+                client.BaseAddress = new Uri(Env.GetString("SENDCHAMP_BASE_URL"));
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Env.GetString("SENDCHAMP_SECRET")}");
             });
 
             services.AddScoped<IPaymentProvider, PaystackPaymentProvider>();
+            services.AddScoped<INotificationProvider, SendChampNotificationProvider>();
 
             // Create the Bot Framework Authentication to be used with the Bot Adapter.
             services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
@@ -73,33 +92,24 @@ namespace ChatBot
             // Create the User state. (Used in this bot's Dialog implementation.)
             services.AddSingleton<UserState>();
 
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(
-                                  policy =>
-                                  {
-                                      policy
-                                      .AllowAnyOrigin()
-                                        .AllowAnyHeader()
-                                        .AllowAnyMethod();
-            });
-            });
-
             // Create the Conversation state. (Used by the Dialog system itself.)
             services.AddSingleton<ConversationState>();
 
             // Register LUIS recognizer
             services.AddSingleton<BankOperationRecognizer>();
 
-            // Register the BookingDialog.
-            services.AddScoped<OpenAccounDialog>();
+            // Register the Dialogs.
+            services.AddScoped<OpenAccountDialog>();
             services.AddScoped<AuthDialog>();
+            services.AddScoped<FundTransferDialog>();
             services.AddScoped<CheckAccountBalanceDialog>();
             services.AddScoped<ManageComplaintDialog>();
             services.AddScoped<LogComplaintDialog>();
             services.AddScoped<TrackComplaintDialog>();
-
+            services.AddScoped<TransactionHistoryDialog>();
+            services.AddScoped<FeedbackDialog>();
             services.AddScoped<MainDialog>();
+          
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
 
             services.AddTransient<IBot, DialogAndWelcomeBot<MainDialog>>();
@@ -111,6 +121,10 @@ namespace ChatBot
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseHsts();
             }
 
             app.UseDefaultFiles()

@@ -3,7 +3,7 @@ using ChatBot.Clu;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
-using Microsoft.Extensions.Configuration;
+using DotNetEnv;
 
 namespace ChatBot
 {
@@ -11,16 +11,16 @@ namespace ChatBot
     {
         private readonly CluRecognizer _recognizer;
 
-        public BankOperationRecognizer(IConfiguration configuration)
+        public BankOperationRecognizer()
         {
-            var cluIsConfigured = !string.IsNullOrEmpty(configuration["CluProjectName"]) && !string.IsNullOrEmpty(configuration["CluDeploymentName"]) && !string.IsNullOrEmpty(configuration["CluAPIKey"]) && !string.IsNullOrEmpty(configuration["CluAPIHostName"]);
+            var cluIsConfigured = !string.IsNullOrEmpty(Env.GetString("CluProjectName")) && !string.IsNullOrEmpty(Env.GetString("CluDeploymentName")) && !string.IsNullOrEmpty(Env.GetString("CluAPIKey")) && !string.IsNullOrEmpty(Env.GetString("CluAPIHostName"));
             if (cluIsConfigured)
             {
                 var cluApplication = new CluApplication(
-                    configuration["CluProjectName"],
-                    configuration["CluDeploymentName"],
-                    configuration["CluAPIKey"],
-                    "https://" + configuration["CluAPIHostName"]);
+                    Env.GetString("CluProjectName"),
+                    Env.GetString("CluDeploymentName"),
+                    Env.GetString("CluAPIKey"),
+                    "https://" + Env.GetString("CluAPIHostName"));
                 var recognizerOptions = new CluOptions(cluApplication) { Language = "en" };
 
                 _recognizer = new CluRecognizer(recognizerOptions);
