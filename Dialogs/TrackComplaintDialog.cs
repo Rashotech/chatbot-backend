@@ -1,10 +1,10 @@
 ﻿using ChatBot.Database.Models;
 using ChatBot.Services.Interfaces;
 using ChatBot.Utils;
-using ChatBot.Resources;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,7 +40,7 @@ namespace ChatBot.Dialogs
         StoreComplaintNoAsync,
         AskForFurtherComplaintAsync,
         FinalStepAsync,
-        
+
             }));
 
             InitialDialogId = nameof(WaterfallDialog);
@@ -63,15 +63,105 @@ namespace ChatBot.Dialogs
             complaintNo = complaintNo.ToUpper();
             try
             {
-               var complaint = await _complaintService.GetComplaintByComplaintNo(account.Id, complaintNo);
-               string apology = "";
+                var complaint = await _complaintService.GetComplaintByComplaintNo(account.Id, complaintNo);
+                string message = $"I found it!";
+                string apology = "";
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
 
+                try
+                {
+                    var cardJson = @"{  
+                      ""type"": ""AdaptiveCard"",
+                      ""body"": [
+                        {
+                          ""type"": ""TextBlock"",
+                          ""text"": ""Complaint - {complaintNo} Details"",
+                          ""weight"": ""Bolder"",
+                          ""size"": ""ExtraLarge"",
+                          ""color"": ""Default"",
+                          ""fontType"": ""Monospace"",
+                          ""horizontalAlignment"": ""center"",
+                          ""spacing"": ""Medium"",
+                          ""separator"": true
+                        },
+                        {
+                          ""type"": ""TextBlock"",
+                          ""text"": ""Account Number: {accountNumber}"",
+                          ""weight"": ""Bolder"",
+                          ""spacing"": ""Small""
+                        },
+                        {
+                          ""type"": ""TextBlock"",
+                          ""text"": ""Category: {category}"",
+                          ""weight"": ""Bolder"",
+                          ""spacing"": ""Small""
+                        },
+                        {
+                          ""type"": ""TextBlock"",
+                          ""text"": ""Platform: {channel}"",
+                          ""weight"": ""Bolder"",
+                          ""spacing"": ""Small""
+                        },
+                        {
+                          ""type"": ""TextBlock"",
+                          ""text"": ""Date: {date}"",
+                          ""weight"": ""Bolder"",
+                          ""spacing"": ""Small""
+                        },
+                        {
+                          ""type"": ""TextBlock"",
+                          ""text"": ""Ref: {transactionRef}"",
+                          ""weight"": ""Bolder"",
+                          ""spacing"": ""Small""
+                        },
+                        {
+                          ""type"": ""TextBlock"",
+                          ""text"": ""Description: {description}"",
+                          ""weight"": ""Bolder"",
+                          ""spacing"": ""Small""
+                        },
+                        {
+                          ""type"": ""TextBlock"",
+                          ""text"": ""Amount: NGN {amount}"",
+                          ""weight"": ""Bolder"",
+                          ""spacing"": ""Small""
+                        },
+                        {
+                          ""type"": ""TextBlock"",
+                          ""text"": ""Status: {status}"",
+                          ""weight"": ""Bolder"",
+                          ""spacing"": ""Small""
+                        }
+                      ]
+                    }";
 
-                string message = complaint != null
-                ? $"I found it!\n\n"
-                : "I'm sorry, no complaints exist with that Number.";
+                    cardJson = cardJson.Replace("{accountNumber}", account.AccountNumber)
+                                       .Replace("{complaintNo}", complaint.ComplaintNo)
+                                       .Replace("{category}", complaint.Category)
+                                       .Replace("{channel}", Enum.GetName(typeof(Channel), complaint.Channel))
+                                       .Replace("{date}", complaint.Date.ToLongDateString())
+                                       .Replace("{transactionRef}", complaint.TransactionRef)
+                                       .Replace("{description}", complaint.Description)
+                                       .Replace("{amount}", (complaint.Amount / 100).ToString("N2"))
+                                       .Replace("{status}", complaint.ComplaintStatus == 0 ? "Pending" : "Resolved");
 
-                if(complaint != null)
+                    var adaptiveCardAttachment = new Attachment()
+                    {
+                        ContentType = "application/vnd.microsoft.card.adaptive",
+                        Content = JObject.Parse(cardJson)
+                    };
+
+                    var card = MessageFactory.Attachment(adaptiveCardAttachment);
+                    await stepContext.Context.SendActivityAsync(card, cancellationToken);
+
+                }
+                catch (Exception ex)
+                {
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(ex.Message), cancellationToken);
+                }
+                
+
+                if (complaint != null)
                 {
                     message += "\n\n" +
                                            $"Account Number: {account.AccountNumber}\n\n" +
@@ -80,7 +170,7 @@ namespace ChatBot.Dialogs
                                            $"Date: {complaint.Date}\n\n" +
                                            $"Ref: {complaint.TransactionRef}\n\n" +
                                            $"Description: {complaint.Description}\n\n" +
-                                           $"Amount: NGN{(complaint.Amount)/100:N2}\n\n" +
+                                           $"Amount: NGN{(complaint.Amount) / 100:N2}\n\n" +
                                            $"Status: {Enum.GetName(typeof(Status), complaint.ComplaintStatus)}";
 
 
@@ -96,10 +186,9 @@ namespace ChatBot.Dialogs
 
                 }
 
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text(apology), cancellationToken);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 string message = _messages.GetRandomMessage(_messages.ComplaintRetrievalErrorMessages);
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
@@ -111,7 +200,7 @@ namespace ChatBot.Dialogs
 
         private async Task<DialogTurnResult> AskForFurtherComplaintAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var messageText =_messages.GetRandomMessage(_messages.AdditionalComplaintRequestMessages);
+            var messageText = _messages.GetRandomMessage(_messages.AdditionalComplaintRequestMessages);
             var promptMessage = MessageFactory.Text(messageText, messageText, InputHints.ExpectingInput);
             return await stepContext.PromptAsync(nameof(ConfirmPrompt), new PromptOptions { Prompt = promptMessage }, cancellationToken);
         }

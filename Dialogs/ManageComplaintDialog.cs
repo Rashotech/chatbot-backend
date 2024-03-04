@@ -1,10 +1,10 @@
 ﻿using ChatBot.Database.Models;
 using ChatBot.Models;
-using ChatBot.Resources;
 using ChatBot.Services.Interfaces;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,12 +59,22 @@ namespace ChatBot.Dialogs
         {
             var account = await _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
             stepContext.Values["Account"] = account;
-            Customer customer = await _customerService.GetCustomerInfoAsync(account.CustomerId);
+            Customer customer;
 
-            var reply = MessageFactory.Text($"Yeap! **{customer.FirstName}** I found your account\n\n" +
-                $"Lets move on");
-            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
-            return await stepContext.NextAsync(reply, cancellationToken);
+            try
+            {
+                customer = await _customerService.GetCustomerInfoAsync(account.CustomerId);
+
+                var reply = MessageFactory.Text($"Yeap! **{customer.FirstName}** I found your account\n\n" +
+                    $"Lets move on");
+                await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+            }
+            catch(Exception ex)
+            {
+                var reply = MessageFactory.Text(ex.Message);
+                await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+            }
+            return await stepContext.NextAsync(null, cancellationToken);
         }
 
         private async Task<DialogTurnResult> SelectOptionAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)

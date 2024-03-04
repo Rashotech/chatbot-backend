@@ -16,6 +16,7 @@ using ChatBot.Services.Interfaces;
 using ChatBot.Dialogs;
 using ChatBot.Bots;
 using DotNetEnv;
+using ChatBot.Database.Models;
 
 namespace ChatBot
 {
@@ -109,7 +110,8 @@ namespace ChatBot
             services.AddScoped<TransactionHistoryDialog>();
             services.AddScoped<FeedbackDialog>();
             services.AddScoped<MainDialog>();
-          
+            services.AddScoped<MessagePrompts>();
+
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
 
             services.AddTransient<IBot, DialogAndWelcomeBot<MainDialog>>();
