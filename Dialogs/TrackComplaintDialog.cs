@@ -1,8 +1,10 @@
 ﻿using ChatBot.Database.Models;
 using ChatBot.Services.Interfaces;
 using ChatBot.Utils;
+using ChatBot.Resources;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Schema;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,24 +16,30 @@ namespace ChatBot.Dialogs
         private const string AdaptivePromptId = "adaptive";
         private readonly IStatePropertyAccessor<Account> _accountInfoAccessor;
         private readonly IComplaintService _complaintService;
+        private readonly MessagePrompts _messages;
 
 
         public TrackComplaintDialog(
             IComplaintService complaintService,
             AuthDialog authDialog,
-            UserState userState
+            UserState userState,
+            MessagePrompts messages
         )
      : base(nameof(TrackComplaintDialog))
         {
             _complaintService = complaintService;
+            _messages = messages;
             _accountInfoAccessor = userState.CreateProperty<Account>("Account");
             AddDialog(authDialog);
             AddDialog(new TextPrompt(nameof(TextPrompt)));
+            AddDialog(new ConfirmPrompt(nameof(ConfirmPrompt)));
             AddDialog(new AdaptiveCardPrompt(AdaptivePromptId));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
         GetComplaintNoAsync,
         StoreComplaintNoAsync,
+        AskForFurtherComplaintAsync,
+        FinalStepAsync,
         
             }));
 
@@ -42,7 +50,7 @@ namespace ChatBot.Dialogs
 
         private async Task<DialogTurnResult> GetComplaintNoAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var reply = MessageFactory.Text("Can I have the Complaint Number? The one starting with 'COMP...'");
+            var reply = MessageFactory.Text(_messages.GetRandomMessage(_messages.ComplaintNumberRequestMessages));
 
             await stepContext.Context.SendActivityAsync(reply, cancellationToken);
             return Dialog.EndOfTurn;
@@ -60,7 +68,7 @@ namespace ChatBot.Dialogs
 
 
                 string message = complaint != null
-                ? $"I found it!"
+                ? $"I found it!\n\n"
                 : "I'm sorry, no complaints exist with that Number.";
 
                 if(complaint != null)
@@ -78,7 +86,12 @@ namespace ChatBot.Dialogs
 
                     if (complaint.ComplaintStatus == 0)
                     {
-                        apology += "I'm so sorry your complaint is yet to be resolved. I promise we're working on it as much as we can.";
+                        apology += _messages.GetRandomMessage(_messages.ComplaintNotResolvedMessages);
+                    }
+
+                    else
+                    {
+                        apology += _messages.GetRandomMessage(_messages.IssueResolvedMessages);
                     }
 
                 }
@@ -88,13 +101,32 @@ namespace ChatBot.Dialogs
             }
             catch (Exception ex)
             {
-                string message = $"I'm having a hard time finding the Complaint...{ex.Message}\n\n" +
-                    $"Don't worry, I'll log your complaints anyway.";
+                string message = _messages.GetRandomMessage(_messages.ComplaintRetrievalErrorMessages);
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
                 return await stepContext.BeginDialogAsync(nameof(InitialDialogId), cancellationToken);
             }
 
             return await stepContext.NextAsync(null, cancellationToken);
+        }
+
+        private async Task<DialogTurnResult> AskForFurtherComplaintAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            var messageText =_messages.GetRandomMessage(_messages.AdditionalComplaintRequestMessages);
+            var promptMessage = MessageFactory.Text(messageText, messageText, InputHints.ExpectingInput);
+            return await stepContext.PromptAsync(nameof(ConfirmPrompt), new PromptOptions { Prompt = promptMessage }, cancellationToken);
+        }
+
+        private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            if ((bool)stepContext.Result != false)
+            {
+                return await stepContext.ReplaceDialogAsync(InitialDialogId, null, cancellationToken);
+            }
+
+            var messageText = $"Okay...";
+            var endMessage = MessageFactory.Text(messageText, messageText, InputHints.IgnoringInput);
+            await stepContext.Context.SendActivityAsync(endMessage, cancellationToken);
+            return await stepContext.EndDialogAsync(null, cancellationToken);
         }
     }
 }
