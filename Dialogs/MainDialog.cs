@@ -1,4 +1,5 @@
 ﻿using ChatBot.CognitiveModels;
+using ChatBot.Database.Models;
 using ChatBot.Dtos;
 using ChatBot.Models;
 using Microsoft.Bot.Builder;
@@ -19,6 +20,7 @@ namespace ChatBot.Dialogs
         protected readonly ILogger Logger;
         private readonly string ConfirmDlgId = "ConfirmDlgId";
         private readonly string Confirm2DlgId = "Confirm2DlgId";
+        private readonly MessagePrompts _messages;
 
         public MainDialog(
             BankOperationRecognizer cluRecognizer,
@@ -28,13 +30,14 @@ namespace ChatBot.Dialogs
             ManageComplaintDialog manageComplaintDialog,
             TransactionHistoryDialog transactionHistoryDialog,
             FeedbackDialog feedbackDialog,
-            ILogger<MainDialog> logger
+            ILogger<MainDialog> logger,
+            MessagePrompts messages
         )
             : base(nameof(MainDialog))
         {
             _cluRecognizer = cluRecognizer;
             Logger = logger;
-
+            _messages = messages;
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(openAccountDialog);
             AddDialog(fundTransferDialog);
@@ -61,7 +64,7 @@ namespace ChatBot.Dialogs
         {
             var card = new HeroCard
             {
-                Text = "Hello! Welcome to FirstBank. I’m Crowl, your virtual assistant. How can I help you?",
+                Text = _messages.GetRandomMessage(_messages.Greetings),
                 Buttons = new List<CardAction>
                 {
                     new CardAction(ActionTypes.PostBack, title: "Open Account", value: nameof(BankOperationIntent.OpenAccount)),
@@ -184,7 +187,7 @@ namespace ChatBot.Dialogs
                 return await stepContext.ReplaceDialogAsync(InitialDialogId, null, cancellationToken);
             }
 
-            var messageText = $"Thank you for banking with us.\n\nTo protect your sensitive data/information, you may close this window now.";
+            var messageText = _messages.GetRandomMessage(_messages.GoodbyeMessages);
             var endMessage = MessageFactory.Text(messageText, messageText, InputHints.IgnoringInput);
             await stepContext.Context.SendActivityAsync(endMessage, cancellationToken);
             return await stepContext.CancelAllDialogsAsync(cancellationToken);

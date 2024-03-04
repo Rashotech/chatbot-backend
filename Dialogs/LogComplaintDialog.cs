@@ -2,7 +2,6 @@
 using ChatBot.Dtos;
 using ChatBot.Services.Interfaces;
 using ChatBot.Utils;
-using ChatBot.Resources;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;

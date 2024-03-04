@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ChatBot.Resources
+namespace ChatBot.Database.Models
 {
     public class MessagePrompts
     {
@@ -23,6 +23,45 @@ namespace ChatBot.Resources
             return messages[index];
         }
 
+        public List<string> Greetings = new List<string>
+        {
+            "👋 Hello! Welcome to FirstBank. I’m Crowl, your virtual assistant. How can I help you?",
+            "🌟 Welcome to FirstBank! I'm Crowl, here to assist you with any banking queries or tasks.",
+            "🤖 Greetings! I'm Crowl, your friendly virtual assistant at FirstBank. How may I assist you today?",
+            "👋 Hi there! It's a pleasure to welcome you to FirstBank. I'm Crowl, ready to help with any banking needs.",
+            "🌟 Welcome aboard! I'm Crowl, your virtual assistant from FirstBank. Feel free to ask me anything!",
+            "🤖 Hello and welcome! I'm Crowl, here to provide you with top-notch assistance at FirstBank.",
+            "👋 Good day! I'm Crowl, your trusty virtual assistant at FirstBank. How can I make your day easier?",
+            "🌟 Greetings and welcome! I'm Crowl, your helpful virtual assistant from FirstBank. How can I assist you today?",
+            "🤖 Hi! It's great to have you here at FirstBank. I'm Crowl, ready to assist you with any banking tasks.",
+            "👋 Welcome to FirstBank! I'm Crowl, your friendly AI assistant. How can I be of service today?",
+            "🌟 Hello! I'm Crowl, your personal virtual banker at FirstBank. How may I assist you?",
+            "🤖 Greetings! I'm Crowl, here to make your banking experience smoother. How can I help you today?",
+            "👋 Hi! I'm Crowl, your reliable virtual assistant from FirstBank. What can I do for you?",
+            "🌟 Welcome to FirstBank! I'm Crowl, here to provide you with personalized assistance. What do you need help with?",
+            "🤖 Hello there! I'm Crowl, your digital banking companion. How can I assist you today?",
+            "👋 Greetings! I'm Crowl, your virtual banking assistant. Feel free to ask me anything!",
+            "🌟 Hi! I'm Crowl, your friendly neighborhood virtual banker. How can I assist you today?",
+            "🤖 Welcome to FirstBank! I'm Crowl, your virtual assistant extraordinaire. How can I make your day better?",
+            "👋 Hello and welcome! I'm Crowl, here to simplify your banking experience. What can I do for you?",
+            "🌟 Hi there! I'm Crowl, your digital concierge at FirstBank. How may I assist you today?"
+        };
+
+        public List<string> GoodbyeMessages = new List<string>
+        {
+            "👋 Thank you for banking with us! Bye for now! To start another conversation, just say hi!",
+            "🌟 Bye! Thank you for choosing FirstBank. If you need assistance later, simply say hi!",
+            "🤖 Goodbye! It was a pleasure assisting you. Feel free to return anytime by saying hi!",
+            "👋 Until next time! Thank you for banking with FirstBank. Say hi whenever you're ready to chat again!",
+            "🌟 So long! We appreciate your business at FirstBank. If you have more questions, just say hi!",
+            "🤖 Bye for now! Your satisfaction is important to us. Remember, saying hi starts a new conversation!",
+            "👋 Bye-bye! We're glad to have been of service. If you ever need help, don't hesitate to say hi!",
+            "🌟 Take care! Thank you for choosing FirstBank. Say hi whenever you'd like to chat again!",
+            "🤖 Goodbye for now! We're here 24/7 at FirstBank. Don't forget, saying hi brings us back!",
+            "👋 Bye and thank you! Your loyalty to FirstBank is appreciated. Need assistance? Just say hi!",
+            "🌟 See you later! Thank you for banking with us. Anytime you're ready to chat, just say hi!",
+            "🤖 Bye for now! It's been a pleasure serving you. Remember, saying hi keeps the conversation going!"
+        };
         public List<string> ManageComplaintAuthSentences => new List<string>
         {
             "Let's take a moment to verify the account associated with your complaint.",
@@ -158,7 +197,7 @@ namespace ChatBot.Resources
             "🔄 Sorry about that. Let's attempt a different transaction.",
             "🛑 Uh-oh! It seems we hit a snag. Let's try another transaction.",
             "🔄 Apologies for the inconvenience. Let's try another transaction.",
-            "🔍 Oops! Something went wrong. Let's try a different transaction.", 
+            "🔍 Oops! Something went wrong. Let's try a different transaction.",
             "🔄 My apologies. Let's give another transaction a try.",
             "🛑 Sorry about the confusion. Let's move on to another transaction.",
             "🔄 Oops! Let's try another transaction to resolve this."
@@ -218,7 +257,7 @@ namespace ChatBot.Resources
             "Would you be able to provide the Complaint Number? It typically starts with 'COMP...'",
             "I'll need the Complaint Number, please. It typically starts with 'COMP...'"
         };
-        
+
         public List<string> ComplaintNotResolvedMessages = new List<string>
         {
             "🥺 I'm so sorry your complaint is yet to be resolved. I promise we're working on it as much as we can.",
@@ -232,7 +271,7 @@ namespace ChatBot.Resources
             "🥺 We apologize for the inconvenience of your complaint remaining unresolved. We're working hard to fix it.",
             "🥺 We understand your frustration that your complaint is still open. We're committed to resolving it as quickly as possible."
         };
-        
+
         public List<string> ComplaintRetrievalErrorMessages = new List<string>
             {
             "Ouch! An error occurred while I was trying to retrieve the complaint. I don't think any complaint exists with that number on this account.",
@@ -270,7 +309,7 @@ namespace ChatBot.Resources
             "🎉 You'll be glad to know that the issue has been resolved. Thank you for your cooperation. 😊",
             "🚀 We're happy to report that the issue has been resolved. Thank you for your understanding. 😊"
         };
-            
+
 
 
 
