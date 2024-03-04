@@ -29,6 +29,7 @@ namespace ChatBot.Dialogs
             ManageComplaintDialog manageComplaintDialog,
             TransactionHistoryDialog transactionHistoryDialog,
             FeedbackDialog feedbackDialog,
+            QnADialog qnADialog,
             ILogger<MainDialog> logger
         )
             : base(nameof(MainDialog))
@@ -43,6 +44,7 @@ namespace ChatBot.Dialogs
             AddDialog(manageComplaintDialog);
             AddDialog(transactionHistoryDialog);
             AddDialog(feedbackDialog);
+            AddDialog(qnADialog);
             AddDialog(new ConfirmPrompt(ConfirmDlgId));
             AddDialog(new ConfirmPrompt(Confirm2DlgId));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -91,8 +93,8 @@ namespace ChatBot.Dialogs
                 switch (userInput)
                 {
                     case nameof(BankOperationIntent.OpenAccount):
-                        return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), new OpenAccountDto(), cancellationToken);
-                        
+                        return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), null, cancellationToken);
+
                     case nameof(BankOperationIntent.FundTransfer):
                         return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
                         
@@ -137,12 +139,7 @@ namespace ChatBot.Dialogs
                         return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
 
                     default:
-                        // Catch all for unhandled intents
-                        // TODO: Integrate question answering here
-                        var didntUnderstandMessageText = $"Sorry, I didn't get that. Please try asking in a different way (intent was {cluResult.GetTopIntent().intent})";
-                        var didntUnderstandMessage = MessageFactory.Text(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
-                        await stepContext.Context.SendActivityAsync(didntUnderstandMessage, cancellationToken);
-                        break;
+                        return await stepContext.BeginDialogAsync(nameof(QnADialog), null, cancellationToken);
                 }
             }
 
