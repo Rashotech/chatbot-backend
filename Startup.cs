@@ -61,7 +61,9 @@ namespace ChatBot
             // Application Services
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IComplaintService, ComplaintService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<IComplaintRepository, ComplaintRepository>();
 
             services.AddHttpClient("Paystack", client =>
             {
@@ -101,6 +103,9 @@ namespace ChatBot
             services.AddScoped<AuthDialog>();
             services.AddScoped<FundTransferDialog>();
             services.AddScoped<CheckAccountBalanceDialog>();
+            services.AddScoped<ManageComplaintDialog>();
+            services.AddScoped<LogComplaintDialog>();
+            services.AddScoped<TrackComplaintDialog>();
             services.AddScoped<TransactionHistoryDialog>();
             services.AddScoped<FeedbackDialog>();
             services.AddScoped<MainDialog>();

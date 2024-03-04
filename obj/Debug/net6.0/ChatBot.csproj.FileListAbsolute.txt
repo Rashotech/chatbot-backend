@@ -190,4 +190,7 @@ C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\obj\Debug\n
 C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\obj\Debug\net6.0\ChatBot.pdb
 C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\obj\Debug\net6.0\ChatBot.genruntimeconfig.cache
 C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\obj\Debug\net6.0\ref\ChatBot.dll
-C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\AccountBalanceCard.json
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\ComplaintFormCard.json
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\DateCard.json
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\AmountCard.json
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\ComplaintDisplayCard.json

@@ -2,6 +2,7 @@
 using ChatBot.Database.Models;
 using System.Threading.Tasks;
 using ChatBot.Dtos;
+using System.Collections.Generic;
 
 namespace ChatBot.Services.Interfaces
 {

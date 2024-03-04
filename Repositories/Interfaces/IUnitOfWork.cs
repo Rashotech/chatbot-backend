@@ -1,16 +1,18 @@
-﻿using System;
+﻿using ChatBot.Services.Interfaces;
+using System;
 using System.Threading.Tasks;
 
 namespace ChatBot.Repositories.Interfaces
 {
 	public interface IUnitOfWork: IDisposable
-    {
-        ICustomerRepository Customers { get; }
-        IAccountRepository Accounts { get; }
-        ITransactionRepository Transactions { get; }
+	{
+		ICustomerRepository Customers { get; }
+		IAccountRepository Accounts { get; }
+		IComplaintRepository Complaints { get; }
+		ITransactionRepository Transactions { get; }
 
-        Task CommitAsync();
-        void Commit();
-    }
+		Task CommitAsync();
+		void Commit();
+	}
 }
 

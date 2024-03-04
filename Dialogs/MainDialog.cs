@@ -25,6 +25,7 @@ namespace ChatBot.Dialogs
             OpenAccountDialog openAccountDialog,
             FundTransferDialog fundTransferDialog,
             CheckAccountBalanceDialog checkAccountBalanceDialog,
+            ManageComplaintDialog manageComplaintDialog,
             TransactionHistoryDialog transactionHistoryDialog,
             FeedbackDialog feedbackDialog,
             ILogger<MainDialog> logger
@@ -38,6 +39,7 @@ namespace ChatBot.Dialogs
             AddDialog(openAccountDialog);
             AddDialog(fundTransferDialog);
             AddDialog(checkAccountBalanceDialog);
+            AddDialog(manageComplaintDialog);
             AddDialog(transactionHistoryDialog);
             AddDialog(feedbackDialog);
             AddDialog(new ConfirmPrompt(ConfirmDlgId));
@@ -66,6 +68,7 @@ namespace ChatBot.Dialogs
                     new CardAction(ActionTypes.PostBack, title: "Balance Enquiry", value: nameof(BankOperationIntent.CheckBalance)),
                     new CardAction(ActionTypes.PostBack, title: "Fund Transfer", value: nameof(BankOperationIntent.FundTransfer)),
                     new CardAction(ActionTypes.PostBack, title: "Transaction History", value: nameof(BankOperationIntent.GetTransactionHistory)),
+                    new CardAction(ActionTypes.PostBack, title: "Manage Complaint", value: nameof(BankOperationIntent.ManageComplaint)),
                 },
             };
 
@@ -94,6 +97,9 @@ namespace ChatBot.Dialogs
                         
                     case nameof(BankOperationIntent.CheckBalance):
                         return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
+                        
+                    case nameof(BankOperationIntent.ManageComplaint):
+                        return await stepContext.BeginDialogAsync(nameof(ManageComplaintDialog), null, cancellationToken);
 
                     case nameof(BankOperationIntent.GetTransactionHistory):
                         return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
@@ -116,7 +122,10 @@ namespace ChatBot.Dialogs
                 {
                     case BankOperation.Intent.AccountOpening:
                         return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), null, cancellationToken);
-
+                        
+                    case BankOperation.Intent.ManageComplaint:
+                        return await stepContext.BeginDialogAsync(nameof(ManageComplaintDialog), null, cancellationToken);
+                        
                     case BankOperation.Intent.FundTransfer:
                         return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
                         

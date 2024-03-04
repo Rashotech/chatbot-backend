@@ -44,7 +44,7 @@ namespace ChatBot.Dialogs
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 RequestAccountNumberStepAsync,
-                DataNoticeStepAsync,
+                DataNoticeStepAsync,    
                 AcknowledgeDataNoticeStepAsync,
                 ConfirmAccountNumberStepAsync,
                 OtpSendingNoticeStepAsync,

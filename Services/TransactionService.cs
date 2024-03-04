@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,11 +13,13 @@ namespace ChatBot.Services
 	{
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAccountService _accountService;
+        private readonly BankDbContext _DbContext;
 
-        public TransactionService(IUnitOfWork unitOfWork, IAccountService accountService)
+        public TransactionService(IUnitOfWork unitOfWork, IAccountService accountService, BankDbContext context)
         {
             _unitOfWork = unitOfWork;
             _accountService = accountService;
+            _DbContext = context;
         }
 
         public async Task<IEnumerable<TransactionDto>> GetAccountTransactionsAsync(int accountId, int limit = 5)
@@ -74,6 +76,19 @@ namespace ChatBot.Services
 
             }
         }
+
+        public async Task<List<Transaction>> GetTransactionsByReferenceAsync(int accountId, string transactionReference)
+		{
+			try
+			{
+				return await _DbContext.Transactions
+				.Where(t => t.AccountId == accountId && t.TransactionReference == transactionReference).ToListAsync();
+			}
+			catch (Exception)
+			{
+				return new List<Transaction> ();
+			}
+		}
 
         private static string GenerateTransactionRef()
         {

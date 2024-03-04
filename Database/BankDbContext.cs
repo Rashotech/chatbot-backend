@@ -1,19 +1,20 @@
-﻿using System;
+﻿using ChatBot.Database.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ChatBot.Database.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace ChatBot.Database
 {
-	public class BankDbContext: DbContext
-	{
+    public class BankDbContext : DbContext
+    {
         public BankDbContext(DbContextOptions<BankDbContext> options) : base(options) { }
 
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Complaint> Complaints { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,12 @@ namespace ChatBot.Database
                 .HasOne(t => t.Account)
                 .WithMany(a => a.Transactions)
                 .HasForeignKey(t => t.AccountId);
+
+            modelBuilder.Entity<Complaint>()
+                .HasOne(c => c.Account)
+                .WithMany(r => r.Complaints)
+                .HasForeignKey(c => c.AccountId);
+
         }
 
         public override int SaveChanges()

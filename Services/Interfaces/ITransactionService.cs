@@ -8,8 +8,9 @@ namespace ChatBot.Services.Interfaces
 {
 	public interface ITransactionService
 	{
-        Task<Transaction> FundTransfer(FundTransferDto fundTransferDto);
-        Task<IEnumerable<TransactionDto>> GetAccountTransactionsAsync(int accountId, int limit = 5);
-    }
+		Task<Transaction> FundTransfer(FundTransferDto fundTransferDto);
+		Task<List<Transaction>> GetTransactionsByReferenceAsync(int accountId, string transactionReference);
+    Task<IEnumerable<TransactionDto>> GetAccountTransactionsAsync(int accountId, int limit = 5);
+  }
 }
 
