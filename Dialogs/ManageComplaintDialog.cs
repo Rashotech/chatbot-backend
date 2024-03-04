@@ -69,8 +69,8 @@ namespace ChatBot.Dialogs
                 Text = "So, would you like to Make a complaint or Track the status of one youve made before?",
                 Buttons = new List<CardAction>
                 {
-                    new CardAction(ActionTypes.PostBack, title: "Make A New Complaint", value: nameof(BankOperationIntent.LogComplaint)),
-                    new CardAction(ActionTypes.PostBack, title: "Track Complaint Status", value: nameof(BankOperationIntent.TrackComplaintStatus)),
+                    new CardAction(ActionTypes.PostBack, title: "Make A New Complaint", value: "LogComplaint"),
+                    new CardAction(ActionTypes.PostBack, title: "Track Complaint Status", value: "TrackComplaintStatus"),
                 },
             };
 
@@ -88,10 +88,10 @@ namespace ChatBot.Dialogs
 
             switch (userInput)
             {
-                case nameof(BankOperationIntent.LogComplaint):
+                case "LogComplaint":
                     return await stepContext.BeginDialogAsync(nameof(LogComplaintDialog), null, cancellationToken);
 
-                case nameof(BankOperationIntent.TrackComplaintStatus):
+                case "TrackComplaintStatus":
                     return await stepContext.BeginDialogAsync(nameof(TrackComplaintDialog), null, cancellationToken);
 
                 default:
