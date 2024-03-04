@@ -8,7 +8,7 @@ namespace ChatBot.Services.Interfaces
     public interface IComplaintService
     {
         Task<Complaint> LogComplaintAsync(LogComplaintDto logComplaintDto);
-        
+        Task<Complaint> GetComplaintByComplaintNo(int accountId, string complaintNo);
     }
 }
 

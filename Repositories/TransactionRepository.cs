@@ -26,5 +26,11 @@ namespace ChatBot.Repositories
                 .Take(maxNumberPerItemsPage)
                 .ToListAsync();
         }
+
+        public async Task<Transaction> GetTransactionByReferenceAsync(int accountId, string transactionReference)
+        {
+            return await _DbContext.Transactions
+               .SingleOrDefaultAsync(t => t.AccountId == accountId && t.TransactionReference == transactionReference);
+        }
     }
 }

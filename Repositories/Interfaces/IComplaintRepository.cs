@@ -14,5 +14,6 @@ namespace ChatBot.Repositories.Interfaces
         Task<List<Complaint>> GetComplaintsByDateRange(DateTime startDate, DateTime endDate);
         Task<List<Complaint>> GetComplaintsByStatus(Status complaintStatus);
         Task<List<Complaint>> SearchComplaints(string searchTerm);
+        Task<Complaint> GetComplaintByComplaintNo(int accountId, string complaintNo);
     }
 }

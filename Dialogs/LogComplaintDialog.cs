@@ -4,12 +4,7 @@ using ChatBot.Services.Interfaces;
 using ChatBot.Utils;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Schema;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,14 +14,10 @@ namespace ChatBot.Dialogs
     {
         private const string AdaptivePromptId = "adaptive";
         private readonly IStatePropertyAccessor<Account> _accountInfoAccessor;
-        private readonly IAccountService _accountService;
-        private readonly ICustomerService _customerService;
         private readonly IComplaintService _complaintService;
         private readonly ITransactionService _transactionService;
 
         public LogComplaintDialog(
-            IAccountService accountService,
-            ICustomerService customerService,
             IComplaintService complaintService,
             ITransactionService transactionService,
             AuthDialog authDialog,
@@ -34,8 +25,6 @@ namespace ChatBot.Dialogs
         )
      : base(nameof(LogComplaintDialog))
         {
-            _accountService = accountService;
-            _customerService = customerService;
             _complaintService = complaintService;
             _transactionService = transactionService;
             _accountInfoAccessor = userState.CreateProperty<Account>("Account");
@@ -65,6 +54,7 @@ namespace ChatBot.Dialogs
             await stepContext.Context.SendActivityAsync(reply, cancellationToken);
             return Dialog.EndOfTurn;
         }
+
         private async Task<DialogTurnResult> StoreTransactionRefeAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             Account account = await _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
@@ -73,28 +63,26 @@ namespace ChatBot.Dialogs
             string transactionRef = (string)stepContext.Result;
             transactionRef = transactionRef.Trim().ToUpper();
             stepContext.Values["transactionRef"] = transactionRef;
-            Transaction transaction;
 
             try
             {
-                List<Transaction> transactions = await _transactionService.GetTransactionsByReferenceAsync(account.Id, transactionRef);
-                transaction = transactions.FirstOrDefault();
+                var transaction = await _transactionService.GetTransactionByReferenceAsync(account.Id, transactionRef);
                 stepContext.Values["transaction"] = transaction;
 
                 string status = "";
-                switch (transaction.Status)
+                switch (transaction.Status.ToString())
                 {
-                    case (TransactionStatus)0:
+                    case nameof(TransactionStatus.Pending):
                         status += "is pending";
                         break;
-                    case (TransactionStatus)1:
+                    case nameof(TransactionStatus.Successful):
                         status += "went through successfully";
                         break;
-                    case (TransactionStatus)2:
+                    case nameof(TransactionStatus.Failed):
                         status += "failed";
                         break;
 
-                    case (TransactionStatus)3:
+                    case nameof(TransactionStatus.Reversed):
                         status += "has been reversed";
                         break;
 
@@ -102,7 +90,7 @@ namespace ChatBot.Dialogs
                 string successMessage1 = $"Hmmm... I can see that on {transaction.CreatedAt.ToLongDateString()}, You made a {Enum.GetName(typeof(TransactionType), transaction.TransactionType)} of NGN{transaction.Amount:N2} using the {Enum.GetName(typeof(TransactionChannel), transaction.Channel)} to {transaction.RecipientName} with account number {transaction.RecipientAccountNumber} at {transaction.RecipientBankName}.";
                 string successMessage2 = $"From my end, I can see that the transaction {status}. Is this the transaction you would like to make a complaint about?";
 
-                var message = MessageFactory.Text(transactions != null
+                var message = MessageFactory.Text(transaction != null
                 ? $"{successMessage1}\n\n {successMessage2}"
                 : "I'm sorry, no transactions exist with that reference.");
 
@@ -116,6 +104,7 @@ namespace ChatBot.Dialogs
             }
 
         }
+
         private async Task<DialogTurnResult> DescribeComplaintAsync2(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var confirmed = (bool)stepContext.Result;
@@ -131,6 +120,7 @@ namespace ChatBot.Dialogs
                 return await stepContext.ReplaceDialogAsync(InitialDialogId, message, cancellationToken);
             }
         }
+
         private async Task<DialogTurnResult> StoreDescription2Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var description = (string)stepContext.Result;
@@ -139,6 +129,7 @@ namespace ChatBot.Dialogs
             await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Please hold on while I log your complaint..."), cancellationToken);
             return await stepContext.NextAsync(null, cancellationToken);
         }
+
         private async Task<DialogTurnResult> SubmitComplaint3Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             Account account = (Account)stepContext.Values["Account"];
@@ -163,29 +154,13 @@ namespace ChatBot.Dialogs
 
             };
 
-
             var complaint = await _complaintService.LogComplaintAsync(logComplaintDto);
-
-
 
             await stepContext.Context.SendActivityAsync("Your complaint has been successfully submitted. Our support team will get back to you shortly.\n\n" +
                 $"You can track the status of your complaint with your Complaint Number: {complaint.ComplaintNo}.\n\n" +
-                $"Until it is resolved, the status remainis {complaint.ComplaintStatus}");
+                $"Until it is resolved, the status remainis {complaint.ComplaintStatus}", cancellationToken: cancellationToken);
 
-
-
-            // End the dialog
             return await stepContext.EndDialogAsync(null, cancellationToken);
         }
-
-
-
     }
-
-
 }
-
-
-//3121539729
-//TRX2024022603155642
-//comp-1914079465

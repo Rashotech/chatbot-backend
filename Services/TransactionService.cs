@@ -13,13 +13,11 @@ namespace ChatBot.Services
 	{
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAccountService _accountService;
-        private readonly BankDbContext _DbContext;
 
-        public TransactionService(IUnitOfWork unitOfWork, IAccountService accountService, BankDbContext context)
+        public TransactionService(IUnitOfWork unitOfWork, IAccountService accountService)
         {
             _unitOfWork = unitOfWork;
             _accountService = accountService;
-            _DbContext = context;
         }
 
         public async Task<IEnumerable<TransactionDto>> GetAccountTransactionsAsync(int accountId, int limit = 5)
@@ -77,16 +75,15 @@ namespace ChatBot.Services
             }
         }
 
-        public async Task<List<Transaction>> GetTransactionsByReferenceAsync(int accountId, string transactionReference)
+        public async Task<Transaction> GetTransactionByReferenceAsync(int accountId, string transactionReference)
 		{
 			try
 			{
-				return await _DbContext.Transactions
-				.Where(t => t.AccountId == accountId && t.TransactionReference == transactionReference).ToListAsync();
-			}
+                return await _unitOfWork.Transactions.GetTransactionByReferenceAsync(accountId, transactionReference);
+            }
 			catch (Exception)
 			{
-				return new List<Transaction> ();
+				return null;
 			}
 		}
 

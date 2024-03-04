@@ -4,7 +4,6 @@ using ChatBot.Database.Models;
 using ChatBot.Repositories.Interfaces;
 using ChatBot.Services.Interfaces;
 using ChatBot.Dtos;
-using ChatBot.Exceptions;
 
 namespace ChatBot.Services
 {
@@ -48,6 +47,18 @@ namespace ChatBot.Services
             catch (Exception ex)
             {
                 throw new Exception($"Failed to log complaint, {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Complaint> GetComplaintByComplaintNo(int accountId, string complaintNo)
+        {
+            try
+            {
+                return await _unitOfWork.Complaints.GetComplaintByComplaintNo(accountId, complaintNo);
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }

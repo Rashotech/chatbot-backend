@@ -73,5 +73,11 @@ namespace ChatBot.Repositories
                 .Where(c => c.ComplaintStatus == complaintStatus)
                 .ToListAsync();
         }
+
+        public async Task<Complaint> GetComplaintByComplaintNo(int accountId, string complaintNo)
+        {
+            return await _DbContext.Complaints
+               .SingleOrDefaultAsync(t => t.AccountId == accountId && t.ComplaintNo == complaintNo);
+        }
     }
 }

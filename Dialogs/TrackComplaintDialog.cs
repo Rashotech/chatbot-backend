@@ -1,19 +1,9 @@
-﻿using ChatBot.Clu;
-using ChatBot.CognitiveModels;
-using ChatBot.Database.Models;
-using ChatBot.Dtos;
-using ChatBot.Models;
-using ChatBot.Repositories.Interfaces;
-using ChatBot.Services;
+﻿using ChatBot.Database.Models;
 using ChatBot.Services.Interfaces;
 using ChatBot.Utils;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Schema;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,23 +13,17 @@ namespace ChatBot.Dialogs
     {
         private const string AdaptivePromptId = "adaptive";
         private readonly IStatePropertyAccessor<Account> _accountInfoAccessor;
-        private readonly IAccountService _accountService;
-        private readonly ICustomerService _customerService;
-        private readonly IComplaintRepository _complaintRepository;
+        private readonly IComplaintService _complaintService;
 
 
         public TrackComplaintDialog(
-            IAccountService accountService,
-            ICustomerService customerService,
-            IComplaintRepository complaintRepository,
+            IComplaintService complaintService,
             AuthDialog authDialog,
             UserState userState
         )
      : base(nameof(TrackComplaintDialog))
         {
-            _accountService = accountService;
-            _customerService = customerService;
-            _complaintRepository = complaintRepository;
+            _complaintService = complaintService;
             _accountInfoAccessor = userState.CreateProperty<Account>("Account");
             AddDialog(authDialog);
             AddDialog(new TextPrompt(nameof(TextPrompt)));
@@ -63,18 +47,18 @@ namespace ChatBot.Dialogs
             await stepContext.Context.SendActivityAsync(reply, cancellationToken);
             return Dialog.EndOfTurn;
         }
+
         private async Task<DialogTurnResult> StoreComplaintNoAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             Account account = await _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
             var complaintNo = (string)stepContext.Result;
             try
             {
-                List<Complaint> complaints = await _complaintRepository.GetAllComplaintsByComplaintNo(account.Id, complaintNo);
-                var complaint = complaints.FirstOrDefault();
-                string apology = "";
+               var complaint = await _complaintService.GetComplaintByComplaintNo(account.Id, complaintNo);
+               string apology = "";
 
 
-                string message = complaints.Count() > 1 || complaint != null
+                string message = complaint != null
                 ? $"I found it!"
                 : "I'm sorry, no complaints exist with that Number.";
 
@@ -94,12 +78,10 @@ namespace ChatBot.Dialogs
                     if (complaint.ComplaintStatus == 0)
                     {
                         apology += "I'm so sorry your complaint is yet to be resolved. I promise we're working on it as much as we can.";
-
                     }
 
                 }
 
-                
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text(apology), cancellationToken);
             }
@@ -111,10 +93,7 @@ namespace ChatBot.Dialogs
                 return await stepContext.BeginDialogAsync(nameof(InitialDialogId), cancellationToken);
             }
 
-
             return await stepContext.NextAsync(null, cancellationToken);
         }
-
-
     }
 }
