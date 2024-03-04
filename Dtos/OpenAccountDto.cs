@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using ChatBot.Database.Models;
+using FluentValidation;
 
 namespace ChatBot.Dtos
 {
@@ -37,4 +36,23 @@ namespace ChatBot.Dtos
         [Required]
         public AccountType AccountType { get; set; }
     }
+
+    public class OpenAccountDtoValidator : AbstractValidator<OpenAccountDto>
+    {
+        public OpenAccountDtoValidator()
+        {
+            RuleFor(x => x.FirstName).NotEmpty().WithMessage("First Name is required");
+            RuleFor(x => x.LastName).NotEmpty().WithMessage("Last Name is required");
+            RuleFor(x => x.Email).EmailAddress().WithMessage("Invalid Email format");
+            RuleFor(x => x.PhoneNumber).MinimumLength(11).MaximumLength(11).WithMessage("Invalid Phone Number");
+            RuleFor(x => x.BVNNumber).MinimumLength(11).MaximumLength(11).WithMessage("Invalid BVN");
+            RuleFor(x => x.NIN).MinimumLength(11).MaximumLength(11).WithMessage("Invalid NIN");
+            RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required");
+            RuleFor(x => x.DateOfBirth)
+                .NotEmpty().WithMessage("Date of Birth is required")
+                .LessThan(DateTime.Today).WithMessage("Date of Birth cannot be in the future");
+            RuleFor(x => x.AccountType).IsInEnum().WithMessage("Invalid Account Type");
+        }
+    }
+
 }
