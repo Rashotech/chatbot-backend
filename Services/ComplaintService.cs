@@ -22,7 +22,7 @@ namespace ChatBot.Services
             {
                 var guid = Guid.NewGuid();
                 var hash = guid.GetHashCode();
-                var complaintNo = $"comp-{Math.Abs(hash)}";
+                var complaintNo = $"COMP{Math.Abs(hash)}";
                 Status complaintStatus = Status.Pending;
 
 
