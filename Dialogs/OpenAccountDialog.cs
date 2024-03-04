@@ -12,13 +12,13 @@ using ChatBot.Services.Interfaces;
 
 namespace ChatBot.Dialogs
 {
-    public class OpenAccounDialog : CancelAndHelpDialog
+    public class OpenAccountDialog : CancelAndHelpDialog
     {
         private const string AdaptivePromptId = "adaptive";
         private readonly IAccountService _accountService;
 
-        public OpenAccounDialog(IAccountService accountService)
-        : base(nameof(OpenAccounDialog))
+        public OpenAccountDialog(IAccountService accountService)
+        : base(nameof(OpenAccountDialog))
         {
             _accountService = accountService;
             AddDialog(new AdaptiveCardPrompt(AdaptivePromptId));

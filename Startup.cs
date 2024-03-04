@@ -97,7 +97,7 @@ namespace ChatBot
             services.AddSingleton<BankOperationRecognizer>();
 
             // Register the Dialogs.
-            services.AddScoped<OpenAccounDialog>();
+            services.AddScoped<OpenAccountDialog>();
             services.AddScoped<AuthDialog>();
             services.AddScoped<FundTransferDialog>();
             services.AddScoped<CheckAccountBalanceDialog>();

@@ -22,7 +22,7 @@ namespace ChatBot.Dialogs
 
         public MainDialog(
             BankOperationRecognizer cluRecognizer,
-            OpenAccounDialog openAccounDialog,
+            OpenAccountDialog openAccountDialog,
             FundTransferDialog fundTransferDialog,
             CheckAccountBalanceDialog checkAccountBalanceDialog,
             TransactionHistoryDialog transactionHistoryDialog,
@@ -35,7 +35,7 @@ namespace ChatBot.Dialogs
             Logger = logger;
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
-            AddDialog(openAccounDialog);
+            AddDialog(openAccountDialog);
             AddDialog(fundTransferDialog);
             AddDialog(checkAccountBalanceDialog);
             AddDialog(transactionHistoryDialog);
@@ -87,7 +87,7 @@ namespace ChatBot.Dialogs
                 switch (userInput)
                 {
                     case nameof(BankOperationIntent.OpenAccount):
-                        return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), new OpenAccountDto(), cancellationToken);
+                        return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), new OpenAccountDto(), cancellationToken);
                         
                     case nameof(BankOperationIntent.FundTransfer):
                         return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
@@ -115,7 +115,7 @@ namespace ChatBot.Dialogs
                 switch (cluResult.GetTopIntent().intent)
                 {
                     case BankOperation.Intent.AccountOpening:
-                        return await stepContext.BeginDialogAsync(nameof(OpenAccounDialog), null, cancellationToken);
+                        return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), null, cancellationToken);
 
                     case BankOperation.Intent.FundTransfer:
                         return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
