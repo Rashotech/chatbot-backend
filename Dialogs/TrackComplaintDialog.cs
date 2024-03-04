@@ -42,7 +42,7 @@ namespace ChatBot.Dialogs
 
         private async Task<DialogTurnResult> GetComplaintNoAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var reply = MessageFactory.Text("Can I have the Transaction Reference number? The one starting with 'TRX...'");
+            var reply = MessageFactory.Text("Can I have the Complaint Number? The one starting with 'COMP...'");
 
             await stepContext.Context.SendActivityAsync(reply, cancellationToken);
             return Dialog.EndOfTurn;
@@ -52,6 +52,7 @@ namespace ChatBot.Dialogs
         {
             Account account = await _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
             var complaintNo = (string)stepContext.Result;
+            complaintNo = complaintNo.ToUpper();
             try
             {
                var complaint = await _complaintService.GetComplaintByComplaintNo(account.Id, complaintNo);
@@ -71,7 +72,7 @@ namespace ChatBot.Dialogs
                                            $"Date: {complaint.Date}\n\n" +
                                            $"Ref: {complaint.TransactionRef}\n\n" +
                                            $"Description: {complaint.Description}\n\n" +
-                                           $"Amount: NGN{complaint.Amount:N2}\n\n" +
+                                           $"Amount: NGN{(complaint.Amount)/100:N2}\n\n" +
                                            $"Status: {Enum.GetName(typeof(Status), complaint.ComplaintStatus)}";
 
 

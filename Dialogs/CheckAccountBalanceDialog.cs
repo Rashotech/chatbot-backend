@@ -63,7 +63,7 @@ namespace ChatBot.Dialogs
                 if (balance != null)
                 {
                     string accountName = $"{customer.FirstName} {customer.OtherName} {customer.LastName}";
-                    string accountBalance = $"{balance.Currency} {balance.Balance:N2}";
+                    string accountBalance = $"{balance.Currency} {(balance.Balance)/100:N2}";
 
 
                     var adaptiveCardJson = @"
