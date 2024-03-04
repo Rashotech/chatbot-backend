@@ -9,11 +9,15 @@ namespace ChatBot.CognitiveModels
     {
         public enum Intent
         {
-            OpenAccount,
-            CheckBalance,
+            AccountOpening,
+            BranchLocator,
+            LogComplaints,
+            TrackComplaintStatus,
+            ManageComplaint,
+            Cancel,
+            CheckingBalance,
             FundTransfer,
             GetTransactionHistory,
-            LogComplain,
             None
         }
 

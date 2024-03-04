@@ -7,7 +7,10 @@ namespace ChatBot.Models
         CheckBalance,
         FundTransfer,
         GetTransactionHistory,
-        LogComplain,
+        ManageComplaint,
+        LogComplaint,
+        TrackComplaintStatus,
+        Faq,
         None
     }
 }

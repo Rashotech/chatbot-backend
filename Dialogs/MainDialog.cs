@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using static ChatBot.CognitiveModels.BankOperation;
 
 namespace ChatBot.Dialogs
 {
@@ -29,7 +28,6 @@ namespace ChatBot.Dialogs
             ManageComplaintDialog manageComplaintDialog,
             TransactionHistoryDialog transactionHistoryDialog,
             FeedbackDialog feedbackDialog,
-            QnADialog qnADialog,
             ILogger<MainDialog> logger
         )
             : base(nameof(MainDialog))
@@ -44,7 +42,6 @@ namespace ChatBot.Dialogs
             AddDialog(manageComplaintDialog);
             AddDialog(transactionHistoryDialog);
             AddDialog(feedbackDialog);
-            AddDialog(qnADialog);
             AddDialog(new ConfirmPrompt(ConfirmDlgId));
             AddDialog(new ConfirmPrompt(Confirm2DlgId));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -94,15 +91,15 @@ namespace ChatBot.Dialogs
                 switch (userInput)
                 {
                     case nameof(BankOperationIntent.OpenAccount):
-                        return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), null, cancellationToken);
-
+                        return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), new OpenAccountDto(), cancellationToken);
+                        
                     case nameof(BankOperationIntent.FundTransfer):
                         return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
                         
                     case nameof(BankOperationIntent.CheckBalance):
                         return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
-
-                    case nameof(BankOperationIntent.LogComplain):
+                        
+                    case nameof(BankOperationIntent.ManageComplaint):
                         return await stepContext.BeginDialogAsync(nameof(ManageComplaintDialog), null, cancellationToken);
 
                     case nameof(BankOperationIntent.GetTransactionHistory):
@@ -120,26 +117,26 @@ namespace ChatBot.Dialogs
                 }
             }
 
-            if (_cluRecognizer.IsConfigured && userInput != null)
+            if (!_cluRecognizer.IsConfigured && userInput != null)
             {
                 var cluResult = await _cluRecognizer.RecognizeAsync<BankOperation>(stepContext.Context, cancellationToken);
                 var intent = cluResult.GetTopIntent().intent;
 
-                switch (intent)
+                switch (cluResult.GetTopIntent().intent)
                 {
-                    case Intent.OpenAccount:
+                    case BankOperation.Intent.AccountOpening:
                         return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), null, cancellationToken);
-
-                    case Intent.LogComplain:
-                        return await stepContext.BeginDialogAsync(nameof(ManageComplaintDialog), null, cancellationToken);
-
-                    case Intent.FundTransfer:
-                            return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
                         
-                    case Intent.CheckBalance:
+                    case BankOperation.Intent.ManageComplaint:
+                        return await stepContext.BeginDialogAsync(nameof(ManageComplaintDialog), null, cancellationToken);
+                        
+                    case BankOperation.Intent.FundTransfer:
+                        return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
+                        
+                    case BankOperation.Intent.CheckingBalance:
                         return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
 
-                    case Intent.GetTransactionHistory:
+                    case BankOperation.Intent.GetTransactionHistory:
                         return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
 
                     default:
