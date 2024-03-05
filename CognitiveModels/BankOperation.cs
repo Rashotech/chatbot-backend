@@ -8,15 +8,11 @@ namespace ChatBot.CognitiveModels
     {
         public enum Intent
         {
-            AccountOpening,
-            BranchLocator,
-            LogComplaints,
-            TrackComplaintStatus,
-            ManageComplaint,
-            Cancel,
-            CheckingBalance,
+            OpenAccount,
+            CheckBalance,
             FundTransfer,
             GetTransactionHistory,
+            LogComplain,
             None
         }
 
@@ -42,7 +38,7 @@ namespace ChatBot.CognitiveModels
         public (Intent intent, double score) GetTopIntent()
         {
             var maxIntent = Intent.None;
-            var max = 0.0;
+            var max = 0.8;
             foreach (var entry in Intents)
             {
                 if (entry.Value.Score > max)

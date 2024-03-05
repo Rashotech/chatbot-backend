@@ -1,4 +1,4 @@
-﻿using ChatBot.Database.Models;
+using ChatBot.Database.Models;
 using ChatBot.Services.Interfaces;
 using ChatBot.Utils;
 using Microsoft.Bot.Builder;
@@ -63,35 +63,34 @@ namespace ChatBot.Dialogs
                 if (balance != null)
                 {
                     string accountName = $"{customer.FirstName} {customer.OtherName} {customer.LastName}";
-                    string accountBalance = $"{balance.Currency} {(balance.Balance):N2}";
-
-
-                    var adaptiveCardJson = @"
-        {
-            ""type"": ""AdaptiveCard"",
-            ""body"": [
-                {
-                    ""type"": ""TextBlock"",
-                    ""text"": ""Account Balance"",
-                    ""weight"": ""Bolder"",
-                    ""size"": ""Medium""
+                    string accountBalance = $"{balance.Currency} {(balance.Balance)}";
                     
-                },
-                {
-                    ""type"": ""TextBlock"",
-                    ""text"": ""Account Name: ${accountName}"",
-                    ""size"": ""Medium"",
-                    ""weight"": ""Bolder""
-                },
-                {
-                    ""type"": ""TextBlock"",
-                    ""text"": ""Balance: ${balance}"",
-                    ""size"": ""ExtraLarge"",
-                    ""weight"": ""Bolder"",
-                    ""spacing"": ""Small""
-                }
-            ]
-        }";
+                    var adaptiveCardJson = @"
+                    {
+                        ""type"": ""AdaptiveCard"",
+                        ""body"": [
+                            {
+                                ""type"": ""TextBlock"",
+                                ""text"": ""Account Balance"",
+                                ""weight"": ""Bolder"",
+                                ""size"": ""Medium""
+                    
+                            },
+                            {
+                                ""type"": ""TextBlock"",
+                                ""text"": ""Account Name: ${accountName}"",
+                                ""size"": ""Medium"",
+                                ""weight"": ""Bolder""
+                            },
+                            {
+                                ""type"": ""TextBlock"",
+                                ""text"": ""Balance: ${balance}"",
+                                ""size"": ""ExtraLarge"",
+                                ""weight"": ""Bolder"",
+                                ""spacing"": ""Small""
+                            }
+                        ]
+                    }";
                     adaptiveCardJson = adaptiveCardJson.Replace("${accountName}", accountName);
                     adaptiveCardJson = adaptiveCardJson.Replace("${balance}", accountBalance);
                     adaptiveCardJson = adaptiveCardJson.Replace("${accountType}", accountBalance);
@@ -122,5 +121,3 @@ namespace ChatBot.Dialogs
         }
     }
 }
-
-
