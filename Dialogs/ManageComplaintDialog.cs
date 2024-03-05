@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 namespace ChatBot.Dialogs
 {
-    public class ManageComplaintDialog : ComponentDialog
+    public class ManageComplaintDialog : CancelAndHelpDialog
     {
         private readonly IStatePropertyAccessor<Account> _accountInfoAccessor;
         private readonly ICustomerService _customerService;
