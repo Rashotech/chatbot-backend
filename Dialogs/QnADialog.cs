@@ -71,11 +71,12 @@ namespace ChatBot.Dialogs
 
             var enablePreciseAnswer = true;
             var displayPreciseAnswerOnly = false;
-            var DefaultAnswer = "";
+            var defaultAnswer = "";
+            var useTeamsAdaptiveCard = false;
 
             // Create a new instance of QnAMakerDialog with dialogOptions initialized.
             var noAnswer = MessageFactory.Text(DefaultAnswer ?? string.Empty);
-            var qnamakerDialog = new QnAMakerDialog(nameof(QnAMakerDialog), knowledgeBaseId, endpointKey, hostname, noAnswer: noAnswer, cardNoMatchResponse: MessageFactory.Text(ActiveLearningCardNoMatchResponse), useTeamsAdaptiveCard: false)
+            var qnamakerDialog = new QnAMakerDialog(nameof(QnAMakerDialog), knowledgeBaseId, endpointKey, hostname, noAnswer: noAnswer, cardNoMatchResponse: MessageFactory.Text(ActiveLearningCardNoMatchResponse), useTeamsAdaptiveCard: useTeamsAdaptiveCard)
             {
                 Threshold = ScoreThreshold,
                 ActiveLearningCardTitle = ActiveLearningCardTitle,
