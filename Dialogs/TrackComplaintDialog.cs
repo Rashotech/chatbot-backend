@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ChatBot.Dialogs
 {
-    public class TrackComplaintDialog : ComponentDialog
+    public class TrackComplaintDialog : CancelAndHelpDialog
     {
         private const string AdaptivePromptId = "adaptive";
         private readonly IStatePropertyAccessor<Account> _accountInfoAccessor;
@@ -64,13 +64,17 @@ namespace ChatBot.Dialogs
             try
             {
                 var complaint = await _complaintService.GetComplaintByComplaintNo(account.Id, complaintNo);
-                string message = $"I found it!";
                 string apology = "";
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
 
-                try
+
+                if (complaint != null)
                 {
-                    var cardJson = @"{  
+                    string message = $"I found it!";
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
+
+                    try
+                    {
+                        var cardJson = @"{  
                       ""type"": ""AdaptiveCard"",
                       ""body"": [
                         {
@@ -135,44 +139,31 @@ namespace ChatBot.Dialogs
                       ]
                     }";
 
-                    cardJson = cardJson.Replace("{accountNumber}", account.AccountNumber)
-                                       .Replace("{complaintNo}", complaint.ComplaintNo)
-                                       .Replace("{category}", complaint.Category)
-                                       .Replace("{channel}", Enum.GetName(typeof(Channel), complaint.Channel))
-                                       .Replace("{date}", complaint.Date.ToLongDateString())
-                                       .Replace("{transactionRef}", complaint.TransactionRef)
-                                       .Replace("{description}", complaint.Description)
-                                       .Replace("{amount}", (complaint.Amount / 100).ToString("N2"))
-                                       .Replace("{status}", complaint.ComplaintStatus == 0 ? "Pending" : "Resolved");
+                        cardJson = cardJson.Replace("{accountNumber}", account.AccountNumber)
+                                           .Replace("{complaintNo}", complaint.ComplaintNo)
+                                           .Replace("{category}", complaint.Category)
+                                           .Replace("{channel}", Enum.GetName(typeof(Channel), complaint.Channel))
+                                           .Replace("{date}", complaint.Date.ToLongDateString())
+                                           .Replace("{transactionRef}", complaint.TransactionRef)
+                                           .Replace("{description}", complaint.Description)
+                                           .Replace("{amount}", (complaint.Amount / 100).ToString("N2"))
+                                           .Replace("{status}", complaint.ComplaintStatus == 0 ? "Pending" : "Resolved");
 
-                    var adaptiveCardAttachment = new Attachment()
+                        var adaptiveCardAttachment = new Attachment()
+                        {
+                            ContentType = "application/vnd.microsoft.card.adaptive",
+                            Content = JObject.Parse(cardJson)
+                        };
+
+                        var card = MessageFactory.Attachment(adaptiveCardAttachment);
+                        await stepContext.Context.SendActivityAsync(card, cancellationToken);
+
+
+                    }
+                    catch (Exception ex)
                     {
-                        ContentType = "application/vnd.microsoft.card.adaptive",
-                        Content = JObject.Parse(cardJson)
-                    };
-
-                    var card = MessageFactory.Attachment(adaptiveCardAttachment);
-                    await stepContext.Context.SendActivityAsync(card, cancellationToken);
-
-                }
-                catch (Exception ex)
-                {
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(ex.Message), cancellationToken);
-                }
-                
-
-                if (complaint != null)
-                {
-                    message += "\n\n" +
-                                           $"Account Number: {account.AccountNumber}\n\n" +
-                                           $"Category: {complaint.Category}\n\n" +
-                                           $"Platform: {complaint.Channel}\n\n" +
-                                           $"Date: {complaint.Date}\n\n" +
-                                           $"Ref: {complaint.TransactionRef}\n\n" +
-                                           $"Description: {complaint.Description}\n\n" +
-                                           $"Amount: NGN{(complaint.Amount) / 100:N2}\n\n" +
-                                           $"Status: {Enum.GetName(typeof(Status), complaint.ComplaintStatus)}";
-
+                        await stepContext.Context.SendActivityAsync(MessageFactory.Text(_messages.GetRandomMessage(_messages.ComplaintRetrievalErrorMessages), ex.Message), cancellationToken);
+                    }
 
                     if (complaint.ComplaintStatus == 0)
                     {
@@ -184,9 +175,13 @@ namespace ChatBot.Dialogs
                         apology += _messages.GetRandomMessage(_messages.IssueResolvedMessages);
                     }
 
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(apology), cancellationToken);
+                }
+                else
+                {
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text(_messages.GetRandomMessage(_messages.ComplaintRetrievalErrorMessages)), cancellationToken);
                 }
 
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text(apology), cancellationToken);
             }
             catch (Exception)
             {
