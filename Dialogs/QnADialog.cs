@@ -17,8 +17,6 @@ namespace ChatBot.Dialogs
     {
         private readonly string ConfirmDlgId = "ConfirmDlgId";
         private readonly string Confirm2DlgId = "Confirm2DlgId";
-
-        private const string DialogId = "initial-dialog";
         private const string ActiveLearningCardTitle = "Did you mean:";
         private const string ActiveLearningCardNoMatchText = "None of the above.";
         private const string ActiveLearningCardNoMatchResponse = "Thanks for the feedback.";
@@ -52,7 +50,7 @@ namespace ChatBot.Dialogs
         {
             const string missingConfigError = "{0} is missing or empty in configuration.";
 
-            var hostname = configuration["LanguageEndpointHostName"];
+            var hostname = Env.GetString("LANGUAGE_ENDPOINT_HOSTNAME");
             if (string.IsNullOrEmpty(hostname))
             {
                 throw new ArgumentException(string.Format(missingConfigError, "LanguageEndpointHostName"));
@@ -64,18 +62,20 @@ namespace ChatBot.Dialogs
                 throw new ArgumentException(string.Format(missingConfigError, "LanguageEndpointKey"));
             }
 
-            var knowledgeBaseId = configuration["ProjectName"];
+            var knowledgeBaseId = Env.GetString("LANGUAGE_PROJECT_NAME");
             if (string.IsNullOrEmpty(knowledgeBaseId))
             {
                 throw new ArgumentException(string.Format(missingConfigError, "ProjectName"));
             }
 
-            var enablePreciseAnswer = bool.Parse(configuration["EnablePreciseAnswer"]);
-            var displayPreciseAnswerOnly = bool.Parse(configuration["DisplayPreciseAnswerOnly"]);
+            var enablePreciseAnswer = true;
+            var displayPreciseAnswerOnly = false;
+            var useTeamsAdaptiveCard = false;
+            var defaultAnswer = "";
 
             // Create a new instance of QnAMakerDialog with dialogOptions initialized.
-            var noAnswer = MessageFactory.Text(configuration["DefaultAnswer"] ?? string.Empty);
-            var qnamakerDialog = new QnAMakerDialog(nameof(QnAMakerDialog), knowledgeBaseId, endpointKey, hostname, noAnswer: noAnswer, cardNoMatchResponse: MessageFactory.Text(ActiveLearningCardNoMatchResponse), useTeamsAdaptiveCard: false)
+            var noAnswer = MessageFactory.Text(defaultAnswer ?? string.Empty);
+            var qnamakerDialog = new QnAMakerDialog(nameof(QnAMakerDialog), knowledgeBaseId, endpointKey, hostname, noAnswer: noAnswer, cardNoMatchResponse: MessageFactory.Text(ActiveLearningCardNoMatchResponse), useTeamsAdaptiveCard: useTeamsAdaptiveCard)
             {
                 Threshold = ScoreThreshold,
                 ActiveLearningCardTitle = ActiveLearningCardTitle,
