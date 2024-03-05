@@ -13,6 +13,7 @@ namespace ChatBot.CognitiveModels
             FundTransfer,
             GetTransactionHistory,
             LogComplain,
+            Greeting,
             None
         }
 

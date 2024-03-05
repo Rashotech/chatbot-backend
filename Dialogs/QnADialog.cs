@@ -75,7 +75,7 @@ namespace ChatBot.Dialogs
             var useTeamsAdaptiveCard = false;
 
             // Create a new instance of QnAMakerDialog with dialogOptions initialized.
-            var noAnswer = MessageFactory.Text(DefaultAnswer ?? string.Empty);
+            var noAnswer = MessageFactory.Text(defaultAnswer ?? string.Empty);
             var qnamakerDialog = new QnAMakerDialog(nameof(QnAMakerDialog), knowledgeBaseId, endpointKey, hostname, noAnswer: noAnswer, cardNoMatchResponse: MessageFactory.Text(ActiveLearningCardNoMatchResponse), useTeamsAdaptiveCard: useTeamsAdaptiveCard)
             {
                 Threshold = ScoreThreshold,
