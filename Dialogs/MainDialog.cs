@@ -29,6 +29,7 @@ namespace ChatBot.Dialogs
             CheckAccountBalanceDialog checkAccountBalanceDialog,
             ManageComplaintDialog manageComplaintDialog,
             TransactionHistoryDialog transactionHistoryDialog,
+            QnADialog qnADialog,
             FeedbackDialog feedbackDialog,
             ILogger<MainDialog> logger,
             MessagePrompts messages
@@ -44,6 +45,7 @@ namespace ChatBot.Dialogs
             AddDialog(checkAccountBalanceDialog);
             AddDialog(manageComplaintDialog);
             AddDialog(transactionHistoryDialog);
+            AddDialog(qnADialog);
             AddDialog(feedbackDialog);
             AddDialog(new ConfirmPrompt(ConfirmDlgId));
             AddDialog(new ConfirmPrompt(Confirm2DlgId));
@@ -107,6 +109,9 @@ namespace ChatBot.Dialogs
                     case nameof(BankOperationIntent.GetTransactionHistory):
                         return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
 
+                    case nameof(BankOperationIntent.Faq):
+                        return await stepContext.BeginDialogAsync(nameof(QnADialog), new QuestionAnswering(), cancellationToken);
+
                     default:
                         // Catch all for unhandled intents
                         var didntUnderstandMessageText = $"Sorry, I didn't get that. Please try asking in a different way)";
@@ -116,35 +121,30 @@ namespace ChatBot.Dialogs
                 }
             }
 
-            if (!_cluRecognizer.IsConfigured && userInput != null)
+            if (_cluRecognizer.IsConfigured && userInput != null)
             {
                 var cluResult = await _cluRecognizer.RecognizeAsync<BankOperation>(stepContext.Context, cancellationToken);
                 var intent = cluResult.GetTopIntent().intent;
 
                 switch (cluResult.GetTopIntent().intent)
                 {
-                    case BankOperation.Intent.AccountOpening:
+                    case BankOperation.Intent.OpenAccount:
                         return await stepContext.BeginDialogAsync(nameof(OpenAccountDialog), null, cancellationToken);
                         
-                    case BankOperation.Intent.ManageComplaint:
+                    case BankOperation.Intent.LogComplain:
                         return await stepContext.BeginDialogAsync(nameof(ManageComplaintDialog), null, cancellationToken);
                         
                     case BankOperation.Intent.FundTransfer:
                         return await stepContext.BeginDialogAsync(nameof(FundTransferDialog), null, cancellationToken);
                         
-                    case BankOperation.Intent.CheckingBalance:
+                    case BankOperation.Intent.CheckBalance:
                         return await stepContext.BeginDialogAsync(nameof(CheckAccountBalanceDialog), null, cancellationToken);
 
                     case BankOperation.Intent.GetTransactionHistory:
                         return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
 
                     default:
-                        // Catch all for unhandled intents
-                        // TODO: Integrate question answering here
-                        var didntUnderstandMessageText = $"Sorry, I didn't get that. Please try asking in a different way (intent was {cluResult.GetTopIntent().intent})";
-                        var didntUnderstandMessage = MessageFactory.Text(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
-                        await stepContext.Context.SendActivityAsync(didntUnderstandMessage, cancellationToken);
-                        break;
+                        return await stepContext.BeginDialogAsync(nameof(QnADialog), new QuestionAnswering() { Skip = true }, cancellationToken);
                 }
             }
 

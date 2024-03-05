@@ -17,6 +17,7 @@ using ChatBot.Dialogs;
 using ChatBot.Bots;
 using DotNetEnv;
 using ChatBot.Database.Models;
+using Microsoft.Bot.Builder.Dialogs;
 
 namespace ChatBot
 {
@@ -113,6 +114,7 @@ namespace ChatBot
             services.AddScoped<TrackComplaintDialog>();
             services.AddScoped<TransactionHistoryDialog>();
             services.AddScoped<FeedbackDialog>();
+            services.AddScoped<QnADialog>();
             services.AddScoped<MainDialog>();
             services.AddScoped<MessagePrompts>();
             services.AddScoped<Feedback>();
@@ -120,6 +122,7 @@ namespace ChatBot
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
 
             services.AddTransient<IBot, DialogAndWelcomeBot<MainDialog>>();
+            ComponentRegistration.Add(new DialogsComponentRegistration());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
