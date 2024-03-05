@@ -1,4 +1,4 @@
-﻿using ChatBot.Database.Models;
+using ChatBot.Database.Models;
 using ChatBot.Services.Interfaces;
 using ChatBot.Utils;
 using Microsoft.Bot.Builder;
@@ -64,7 +64,7 @@ namespace ChatBot.Dialogs
                 {
                     string accountName = $"{customer.FirstName} {customer.OtherName} {customer.LastName}";
                     string accountBalance = $"{balance.Currency} {(balance.Balance)}";
-
+                    
                     var adaptiveCardJson = @"
                     {
                         ""type"": ""AdaptiveCard"",
@@ -121,5 +121,3 @@ namespace ChatBot.Dialogs
         }
     }
 }
-
-
