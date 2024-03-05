@@ -1,4 +1,6 @@
 ﻿using ChatBot.Database.Models;
+using ChatBot.Dtos;
+using ChatBot.Services;
 using ChatBot.Services.Interfaces;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
@@ -12,26 +14,32 @@ namespace ChatBot.Dialogs
     public class FeedbackDialog : CancelAndHelpDialog
     {
         private readonly IStatePropertyAccessor<Account> _accountInfoAccessor;
-        private readonly IAccountService _accountService; 
+        private readonly IAccountService _accountService;
+        private readonly IFeedbackService _feedbackService;
 
         public FeedbackDialog(
             IAccountService accountService,
-            UserState userState
+            UserState userState,
+            IFeedbackService feedbackService
+
         )
      : base(nameof(FeedbackDialog))
         {
             _accountService = accountService;
             _accountInfoAccessor = userState.CreateProperty<Account>("Account");
+            _feedbackService = feedbackService;
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
                 RatingStepAsync,
                 AcknowledgeRatingStepAsync,
                 ReviewStepAsync,
+                SaveReviewAsync,
                 FinalStepAsync
             }));
 
             InitialDialogId = nameof(WaterfallDialog);
+            _feedbackService = feedbackService;
         }
 
         private async Task<DialogTurnResult> RatingStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -76,6 +84,43 @@ namespace ChatBot.Dialogs
             };
 
             return await stepContext.PromptAsync(nameof(TextPrompt), promptOptions, cancellationToken);           
+        }
+        
+        private async Task<DialogTurnResult> SaveReviewAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            var review = (string)stepContext.Result;
+            var rating = stepContext.Values["rating"];
+            int finalRating = 0;
+            
+            switch (rating)
+            {
+                case "Very Poor":
+                    finalRating = 1;
+                        break;
+                case "Poor":
+                    finalRating = 2;
+                        break;
+                case "Average":
+                    finalRating = 3;
+                        break;
+                case "Good":
+                    finalRating = 4;
+                        break;
+                case "Excellent":
+                    finalRating = 5;
+                        break;
+            }
+
+            var saveFeedbackDto = new SaveFeedbackDto
+            {
+                Rating = finalRating,
+                Review = review,
+                
+            };
+
+            var complaint = await _feedbackService.SaveFeedbackAsync(saveFeedbackDto);
+
+            return await stepContext.NextAsync(null, cancellationToken);
         }
 
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
