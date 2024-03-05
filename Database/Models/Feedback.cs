@@ -6,8 +6,6 @@ namespace ChatBot.Database.Models
     {
         public Feedback() { }
 
-        public int AccountId { get; set; }
-        [ForeignKey("AccountId")]
         public int Rating { get; set; }
         public string Review { get; set; }
     }
