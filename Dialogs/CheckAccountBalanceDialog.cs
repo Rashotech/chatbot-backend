@@ -63,35 +63,34 @@ namespace ChatBot.Dialogs
                 if (balance != null)
                 {
                     string accountName = $"{customer.FirstName} {customer.OtherName} {customer.LastName}";
-                    string accountBalance = $"{balance.Currency} {(balance.Balance)/100:N2}";
-
+                    string accountBalance = $"{balance.Currency} {(balance.Balance)}";
 
                     var adaptiveCardJson = @"
-        {
-            ""type"": ""AdaptiveCard"",
-            ""body"": [
-                {
-                    ""type"": ""TextBlock"",
-                    ""text"": ""Account Balance"",
-                    ""weight"": ""Bolder"",
-                    ""size"": ""Medium""
+                    {
+                        ""type"": ""AdaptiveCard"",
+                        ""body"": [
+                            {
+                                ""type"": ""TextBlock"",
+                                ""text"": ""Account Balance"",
+                                ""weight"": ""Bolder"",
+                                ""size"": ""Medium""
                     
-                },
-                {
-                    ""type"": ""TextBlock"",
-                    ""text"": ""Account Name: ${accountName}"",
-                    ""size"": ""Medium"",
-                    ""weight"": ""Bolder""
-                },
-                {
-                    ""type"": ""TextBlock"",
-                    ""text"": ""Balance: ${balance}"",
-                    ""size"": ""ExtraLarge"",
-                    ""weight"": ""Bolder"",
-                    ""spacing"": ""Small""
-                }
-            ]
-        }";
+                            },
+                            {
+                                ""type"": ""TextBlock"",
+                                ""text"": ""Account Name: ${accountName}"",
+                                ""size"": ""Medium"",
+                                ""weight"": ""Bolder""
+                            },
+                            {
+                                ""type"": ""TextBlock"",
+                                ""text"": ""Balance: ${balance}"",
+                                ""size"": ""ExtraLarge"",
+                                ""weight"": ""Bolder"",
+                                ""spacing"": ""Small""
+                            }
+                        ]
+                    }";
                     adaptiveCardJson = adaptiveCardJson.Replace("${accountName}", accountName);
                     adaptiveCardJson = adaptiveCardJson.Replace("${balance}", accountBalance);
                     adaptiveCardJson = adaptiveCardJson.Replace("${accountType}", accountBalance);
