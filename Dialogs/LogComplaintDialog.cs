@@ -105,22 +105,34 @@ namespace ChatBot.Dialogs
                     $"Hmm... Based on my logs, it seems that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction worth **NGN{(transaction.Amount) / 100:N2}** using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** channel to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
                     $"From my end, it looks like the transaction is **{status}**. Is this the transaction you're referring to for your complaint?",
 
-                    $"Hmm... Let me check my records. It appears that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction totaling **NGN{(transaction.Amount) / 100:N2}** using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** channel to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
+                    $"Hmm... Let me check my records. " +
+                    $"" +
+                    $"It appears that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction totaling **NGN{(transaction.Amount) / 100:N2}** using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** channel to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
                     $"As far as I can see, the transaction is currently marked as **{status}**. Is this the transaction you'd like to address with a complaint?",
 
-                    $"Sure, let me pull up the details for you. It seems that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction valued at **NGN{(transaction.Amount) / 100:N2}** using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** platform to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
+                    $"Sure, let me pull up the details for you. " +
+                    $"" +
+                    $"It seems that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction valued at **NGN{(transaction.Amount) / 100:N2}** using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** platform to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
                     $"As per my records, the transaction is currently marked as **{status}**. Does this match the transaction you'd like to file a complaint about?",
 
-                    $"Certainly! Let me fetch the details. It appears that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction worth **NGN{(transaction.Amount) / 100:N2}** made using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** channel to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
+                    $"Certainly! Let me fetch the details. " +
+                    $"" +
+                    $"It appears that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction worth **NGN{(transaction.Amount) / 100:N2}** made using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** channel to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
                     $"From what I see, the transaction status is **{status}**. Is this the transaction you're referring to for your complaint?",
 
-                    $"Absolutely! Let me retrieve the details for you. It seems that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction totaling **NGN{(transaction.Amount) / 100:N2}** using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** channel to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
+                    $"Absolutely! Let me retrieve the details for you. " +
+                    $"" +
+                    $"It seems that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction totaling **NGN{(transaction.Amount) / 100:N2}** using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** channel to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
                     $"Based on my records, the transaction is currently **{status}**. Does this match the transaction you'd like to address with a complaint?",
 
-                    $"Of course! Let me gather the information. It looks like on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction valued at **NGN{(transaction.Amount) / 100:N2}** using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** platform to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
+                    $"Of course! Let me gather the information." +
+                    $"" +
+                    $"It looks like on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction valued at **NGN{(transaction.Amount) / 100:N2}** using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** platform to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
                     $"According to my data, the transaction is currently labeled as **{status}**. Is this the transaction you want to discuss with a complaint?",
 
-                    $"Certainly! Let me find the details for you. It seems that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction worth **NGN{(transaction.Amount) / 100:N2}** made using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** channel to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
+                    $"Certainly! Let me find the details for you. " +
+                    $"" +
+                    $"It seems that on **{transaction.CreatedAt.ToLongDateString()}**, there was a **{Enum.GetName(typeof(TransactionType), transaction.TransactionType)}** transaction worth **NGN{(transaction.Amount) / 100:N2}** made using the **{Enum.GetName(typeof(TransactionChannel), transaction.Channel)}** channel to **{transaction.RecipientName}** with account number **{transaction.RecipientAccountNumber}** at **{transaction.RecipientBankName}**. " +
                     $"As per my records, the transaction status is **{status}**. Does this match the transaction you'd like to file a complaint about?"
 
                 };
