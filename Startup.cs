@@ -20,6 +20,7 @@ using Microsoft.Bot.Builder.Dialogs;
 using ChatBot.Database.Models;
 using Microsoft.Bot.Builder.Dialogs;
 using ChatBot.Database.Models;
+using Microsoft.Bot.Builder.Dialogs;
 
 namespace ChatBot
 {
