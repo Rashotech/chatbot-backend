@@ -193,4 +193,10 @@ C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\obj\Debug\n
 C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\ComplaintFormCard.json
 C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\DateCard.json
 C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\AmountCard.json
-C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\ComplaintDisplayCard.json
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\FundTransferCard.json
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Resources\TransactionTableCard.json
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\DotNetEnv.dll
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\FluentValidation.dll
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\FluentValidation.AspNetCore.dll
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\FluentValidation.DependencyInjectionExtensions.dll
+C:\Users\Samuel N. Okafor\Documents\coding\Hackathon\ChatBot-Project\bin\Debug\net6.0\Sprache.dll
