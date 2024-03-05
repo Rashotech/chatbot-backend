@@ -72,6 +72,7 @@ namespace ChatBot.Dialogs
                     new CardAction(ActionTypes.PostBack, title: "Fund Transfer", value: nameof(BankOperationIntent.FundTransfer)),
                     new CardAction(ActionTypes.PostBack, title: "Transaction History", value: nameof(BankOperationIntent.GetTransactionHistory)),
                     new CardAction(ActionTypes.PostBack, title: "Manage Complaint", value: nameof(BankOperationIntent.LogComplain)),
+                    new CardAction(ActionTypes.PostBack, title: "FAQs", value: "FAQ"),
                 },
             };
 
@@ -107,6 +108,9 @@ namespace ChatBot.Dialogs
                     case nameof(BankOperationIntent.GetTransactionHistory):
                         return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
 
+                    case "FAQ":
+                        return await stepContext.BeginDialogAsync(nameof(QnADialog), new QuestionAnswering(), cancellationToken);
+
                     default:
                         // Catch all for unhandled intents
                         var didntUnderstandMessageText = $"Sorry, I didn't get that. Please try asking in a different way)";
@@ -139,7 +143,7 @@ namespace ChatBot.Dialogs
                         return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
 
                     default:
-                        return await stepContext.BeginDialogAsync(nameof(QnADialog), null, cancellationToken);
+                        return await stepContext.BeginDialogAsync(nameof(QnADialog), new QuestionAnswering() { Skip = true }, cancellationToken);
                 }
             }
 
@@ -183,7 +187,7 @@ namespace ChatBot.Dialogs
                 return await stepContext.ReplaceDialogAsync(InitialDialogId, null, cancellationToken);
             }
 
-            var messageText = $"Thanks for banking with us";
+            var messageText = $"Thank you for banking with us.\n\nTo protect your sensitive data/information, you may close this window now.";
             var endMessage = MessageFactory.Text(messageText, messageText, InputHints.IgnoringInput);
             await stepContext.Context.SendActivityAsync(endMessage, cancellationToken);
             return await stepContext.CancelAllDialogsAsync(cancellationToken);

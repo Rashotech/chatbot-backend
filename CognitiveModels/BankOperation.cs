@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Bot.Builder;
 using Newtonsoft.Json;
+using System;
 
 namespace ChatBot.CognitiveModels
 {
@@ -38,7 +39,7 @@ namespace ChatBot.CognitiveModels
         public (Intent intent, double score) GetTopIntent()
         {
             var maxIntent = Intent.None;
-            var max = 0.0;
+            var max = 0.8;
             foreach (var entry in Intents)
             {
                 if (entry.Value.Score > max)
