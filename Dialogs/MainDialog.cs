@@ -64,7 +64,7 @@ namespace ChatBot.Dialogs
         {
             var card = new HeroCard
             {
-                Text = "Hello! Welcome to FirstBank. I’m Fibani, your virtual assistant. How can I help you?",
+                Text = "Hello! Welcome to FirstBank. I’m Crowl, your virtual assistant. How can I help you?",
                 Buttons = new List<CardAction>
                 {
                     new CardAction(ActionTypes.PostBack, title: "Open Account", value: nameof(BankOperationIntent.OpenAccount)),
