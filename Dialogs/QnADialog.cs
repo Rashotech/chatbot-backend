@@ -7,7 +7,6 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.QnA.Dialogs;
 using Microsoft.Bot.Builder.AI.QnA.Models;
 using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Configuration;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
 
@@ -52,7 +51,7 @@ namespace ChatBot.Dialogs
         {
             const string missingConfigError = "{0} is missing or empty in configuration.";
 
-            var hostname = configuration["LanguageEndpointHostName"];
+            var hostname = Env.GetString("LANGUAGE_ENDPOINT_HOSTNAME");
             if (string.IsNullOrEmpty(hostname))
             {
                 throw new ArgumentException(string.Format(missingConfigError, "LanguageEndpointHostName"));
@@ -64,17 +63,18 @@ namespace ChatBot.Dialogs
                 throw new ArgumentException(string.Format(missingConfigError, "LanguageEndpointKey"));
             }
 
-            var knowledgeBaseId = configuration["ProjectName"];
+            var knowledgeBaseId = Env.GetString("LANGUAGE_PROJECT_NAME");
             if (string.IsNullOrEmpty(knowledgeBaseId))
             {
                 throw new ArgumentException(string.Format(missingConfigError, "ProjectName"));
             }
 
-            var enablePreciseAnswer = bool.Parse(configuration["EnablePreciseAnswer"]);
-            var displayPreciseAnswerOnly = bool.Parse(configuration["DisplayPreciseAnswerOnly"]);
+            var enablePreciseAnswer = true;
+            var displayPreciseAnswerOnly = false;
+            var DefaultAnswer = "";
 
             // Create a new instance of QnAMakerDialog with dialogOptions initialized.
-            var noAnswer = MessageFactory.Text(configuration["DefaultAnswer"] ?? string.Empty);
+            var noAnswer = MessageFactory.Text(DefaultAnswer ?? string.Empty);
             var qnamakerDialog = new QnAMakerDialog(nameof(QnAMakerDialog), knowledgeBaseId, endpointKey, hostname, noAnswer: noAnswer, cardNoMatchResponse: MessageFactory.Text(ActiveLearningCardNoMatchResponse), useTeamsAdaptiveCard: false)
             {
                 Threshold = ScoreThreshold,
