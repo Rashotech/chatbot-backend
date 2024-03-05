@@ -179,7 +179,7 @@ namespace ChatBot.Dialogs
         private async Task<DialogTurnResult>InitiateResolveAccountNumberAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var accountNumber = (string)stepContext.Result;
-            var text = "Kindly wait while we validate the Recipient Account Number";
+            var text = "Kindly wait while I validate the Recipient Account Number";
 
             await stepContext.Context.SendActivityAsync(MessageFactory.Text(text), cancellationToken);
 
@@ -273,7 +273,7 @@ namespace ChatBot.Dialogs
                   $"Recipient Account Number: {recipient.RecipientAccountNumber}\n\n" +
                   $"Recipient Account Name: {recipient.RecipientName}\n\n" +
                   $"Recipient Bank name: {bank.name}\n\n" +
-                  $"Amount to be transferred(NGN): {amount}\n\n" +
+                  $"Amount to be transferred(NGN): {amount:N2}\n\n" +
                   $"Narration: {narration}\n\n" +
                   $"Please confirm your details above. Is this correct?";
 
@@ -322,7 +322,7 @@ namespace ChatBot.Dialogs
             catch (Exception ex)
             {
                 var errorMessage = "Fund Transfer Failed, Please Try again later";
-                errorMessage = ex.Message != "" ? ex.Message : errorMessage;
+                errorMessage = ex.Message != "" ? "I'm sorry, but your transaction failed due to an unstable internet connection. Please check your conection and try again" : errorMessage;
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text(errorMessage), cancellationToken);
             }
 
