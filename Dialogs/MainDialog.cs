@@ -29,6 +29,7 @@ namespace ChatBot.Dialogs
             CheckAccountBalanceDialog checkAccountBalanceDialog,
             ManageComplaintDialog manageComplaintDialog,
             TransactionHistoryDialog transactionHistoryDialog,
+            QnADialog qnADialog,
             FeedbackDialog feedbackDialog,
             ILogger<MainDialog> logger,
             MessagePrompts messages
@@ -44,6 +45,7 @@ namespace ChatBot.Dialogs
             AddDialog(checkAccountBalanceDialog);
             AddDialog(manageComplaintDialog);
             AddDialog(transactionHistoryDialog);
+            AddDialog(qnADialog);
             AddDialog(feedbackDialog);
             AddDialog(new ConfirmPrompt(ConfirmDlgId));
             AddDialog(new ConfirmPrompt(Confirm2DlgId));
@@ -107,8 +109,8 @@ namespace ChatBot.Dialogs
                     case nameof(BankOperationIntent.GetTransactionHistory):
                         return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
 
-                    //case nameof(BankOperationIntent.Faq):
-                    //    return await stepContext.BeginDialogAsync(nameof(QnADialog), new QuestionAnswering(), cancellationToken);
+                    case nameof(BankOperationIntent.Faq):
+                        return await stepContext.BeginDialogAsync(nameof(QnADialog), new QuestionAnswering(), cancellationToken);
 
                     default:
                         // Catch all for unhandled intents
@@ -141,8 +143,8 @@ namespace ChatBot.Dialogs
                     case BankOperation.Intent.GetTransactionHistory:
                         return await stepContext.BeginDialogAsync(nameof(TransactionHistoryDialog), null, cancellationToken);
 
-                    //default:
-                    //    return await stepContext.BeginDialogAsync(nameof(QnADialog), new QuestionAnswering() { Skip = true }, cancellationToken);
+                    default:
+                        return await stepContext.BeginDialogAsync(nameof(QnADialog), new QuestionAnswering() { Skip = true }, cancellationToken);
                 }
             }
 
