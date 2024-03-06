@@ -311,8 +311,9 @@ namespace ChatBot.Dialogs
             try
             {
                 var fundTransferDto = (FundTransferDto)stepContext.Values["fundTransferDto"];
-                await _transactionService.FundTransfer(fundTransferDto);
+                var transaction = await _transactionService.FundTransfer(fundTransferDto);
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("Fund Transfer Successful"), cancellationToken);
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Your transaction reference is {transaction.TransactionReference}"), cancellationToken);
 
                 var account = await _accountInfoAccessor.GetAsync(stepContext.Context, () => null, cancellationToken);
                 var balance = await _accountService.GetAccountBalanceAsync(account.Id);
