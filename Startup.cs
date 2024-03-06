@@ -18,6 +18,7 @@ using ChatBot.Bots;
 using DotNetEnv;
 using ChatBot.Database.Models;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Azure.Blobs;
 
 namespace ChatBot
 {
@@ -28,8 +29,6 @@ namespace ChatBot
             Configuration = configuration;
         }
 
-        private string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -39,22 +38,9 @@ namespace ChatBot
             {
                 options.SerializerSettings.MaxDepth = HttpHelper.BotMessageSerializerSettings.MaxDepth;
             });
-            
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(
-                    policy =>
-                    {
-                        policy
-                        .AllowAnyOrigin()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                    }
-                );
-            });
 
             services.AddDbContext<BankDbContext>(options => options
-            .UseSqlServer(Env.GetString("DB_URL"))
+            .UseSqlServer(Env.GetString("DB_URL"), providerOptions => providerOptions.EnableRetryOnFailure())
                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             );
 
@@ -92,8 +78,11 @@ namespace ChatBot
             // Create the Bot Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
-            // Create the storage we'll be using for User and Conversation state. (Memory is great for testing purposes.)
-            services.AddSingleton<IStorage, MemoryStorage>();
+            services.AddSingleton<IStorage>(
+                new BlobsStorage(
+                Env.GetString("BLOB_CONNECTION_STRING"),
+                Env.GetString("BLOB_CONTAINER_NAME")
+            ));
 
             // Create the User state. (Used in this bot's Dialog implementation.)
             services.AddSingleton<UserState>();
@@ -136,11 +125,12 @@ namespace ChatBot
                 app.UseHsts();
             }
 
-            app.UseDefaultFiles()
+                app
+                .UseCors(c => c.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod())
+                .UseDefaultFiles()
                 .UseStaticFiles()
                 .UseWebSockets()
                 .UseRouting()
-                .UseCors(MyAllowSpecificOrigins)
                 .UseAuthorization()
                 .UseEndpoints(endpoints =>
                 {
