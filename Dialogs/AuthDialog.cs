@@ -154,9 +154,9 @@ namespace ChatBot.Dialogs
             try
             {
                 var customer = (Customer)stepContext.Values["customer"];
-                //var phoneNumber = "234" + customer.PhoneNumber.Substring(1);
-                // var reference = await _notificationProvider.SendOtpAsync(phoneNumber);
-                // stepContext.Values["reference"] = reference;
+                var phoneNumber = "234" + customer.PhoneNumber.Substring(1);
+                var reference = await _notificationProvider.SendOtpAsync(phoneNumber);
+                stepContext.Values["reference"] = reference;
 
                 var promptText = $"Kindly enter OTP sent to your phone number ending with {customer.PhoneNumber.Substring(customer.PhoneNumber.Length - 4)}";
                 var promptOptions = new PromptOptions
@@ -193,15 +193,15 @@ namespace ChatBot.Dialogs
                     return await stepContext.EndDialogAsync();
                 }
 
-                // var reference = (string)stepContext.Values["reference"];
-                // var isOtpVerified = await _notificationProvider.VerifyOtpAsyc(reference, otp);
+                 var reference = (string)stepContext.Values["reference"];
+                 var isOtpVerified = await _notificationProvider.VerifyOtpAsyc(reference, otp);
 
-                // if (!isOtpVerified)
-                // {
-                //     return await stepContext.PromptAsync(ConfirmOtpDlgId, promptOptions, cancellationToken);
-                // }
+                 if (!isOtpVerified)
+                 {
+                     return await stepContext.PromptAsync(ConfirmOtpDlgId, promptOptions, cancellationToken);
+                 }
 
-                // await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
+                 await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
             }
             catch (Exception)
             {

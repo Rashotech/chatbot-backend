@@ -74,6 +74,7 @@ namespace ChatBot.Dialogs
                     new CardAction(ActionTypes.PostBack, title: "Fund Transfer", value: nameof(BankOperationIntent.FundTransfer)),
                     new CardAction(ActionTypes.PostBack, title: "Transaction History", value: nameof(BankOperationIntent.GetTransactionHistory)),
                     new CardAction(ActionTypes.PostBack, title: "Manage Complaint", value: nameof(BankOperationIntent.ManageComplaint)),
+                    new CardAction(ActionTypes.PostBack, title: "FAQs", value: nameof(BankOperationIntent.Faq)),
                 },
             };
 
