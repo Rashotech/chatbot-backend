@@ -96,7 +96,12 @@ namespace ChatBot.Dialogs
 
         private async Task<DialogTurnResult> AcknowledgeDataNoticeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            hasAcceptedDataNotice = (string)stepContext.Result == "Accept";
+            bool hasAcceptedDataNotice = ((string)stepContext.Result).ToLower().Contains("accept") || 
+                ((string)stepContext.Result).ToLower().Contains("yes") || 
+                ((string)stepContext.Result).ToLower().Contains("agree") || 
+                ((string)stepContext.Result).ToLower().Contains("alright") || 
+                ((string)stepContext.Result).ToLower().Contains("ok");
+
             if (hasAcceptedDataNotice)
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("Thank you for accepting the data consent."), cancellationToken);
@@ -106,7 +111,7 @@ namespace ChatBot.Dialogs
             else
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("You can’t proceed further as you have rejected data consent."), cancellationToken);
-                return await stepContext.CancelAllDialogsAsync();
+                return await stepContext.CancelAllDialogsAsync(hasAcceptedDataNotice, null, cancellationToken);
             }
         }
 
