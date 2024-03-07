@@ -186,12 +186,12 @@ namespace ChatBot.Dialogs
                 var otp = (string)stepContext.Result;
                 var isOtpValid = _accountService.ValidateOtp(otp);
                 var account = (Account)stepContext.Values["account"];
+                await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
 
-                if(isOtpValid)
+                if (isOtpValid)
                 {
-                    await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
                     await stepContext.Context.SendActivityAsync(MessageFactory.Text("OTP Verified"), cancellationToken);
-                    return await stepContext.EndDialogAsync();
+                    return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
                 }
 
                  var reference = (string)stepContext.Values["reference"];
@@ -202,7 +202,6 @@ namespace ChatBot.Dialogs
                      return await stepContext.PromptAsync(ConfirmOtpDlgId, promptOptions, cancellationToken);
                  }
 
-                await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("OTP Verified"), cancellationToken);
             }
             catch (Exception)
@@ -210,7 +209,7 @@ namespace ChatBot.Dialogs
                 return await stepContext.PromptAsync(ConfirmOtpDlgId, promptOptions, cancellationToken);
             }
 
-            return await stepContext.EndDialogAsync();
+            return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
         }
 
         private static Task<bool> AccountNumberValidator(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
