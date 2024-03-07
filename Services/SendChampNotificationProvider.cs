@@ -24,6 +24,7 @@ namespace ChatBot.Services
               {
                   channel = "sms",
                   sender = "DAlert",
+                  token = new Random().Next(100000, 999999).ToString(),
                   token_type = "numeric",
                   token_length = 6,
                   expiration_time = 10,

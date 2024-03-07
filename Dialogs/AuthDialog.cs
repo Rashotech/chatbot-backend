@@ -190,6 +190,7 @@ namespace ChatBot.Dialogs
                 if(isOtpValid)
                 {
                     await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("OTP Verified"), cancellationToken);
                     return await stepContext.EndDialogAsync();
                 }
 
@@ -201,7 +202,8 @@ namespace ChatBot.Dialogs
                      return await stepContext.PromptAsync(ConfirmOtpDlgId, promptOptions, cancellationToken);
                  }
 
-                 await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
+                await _accountInfoAccessor.SetAsync(stepContext.Context, account, cancellationToken);
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("OTP Verified"), cancellationToken);
             }
             catch (Exception)
             {

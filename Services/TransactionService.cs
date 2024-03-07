@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using ChatBot.Database.Models;
 using ChatBot.Dtos;
 using ChatBot.Repositories.Interfaces;
 using ChatBot.Services.Interfaces;
+using Newtonsoft.Json;
+using DotNetEnv;
 
 namespace ChatBot.Services
 {
@@ -49,6 +54,11 @@ namespace ChatBot.Services
             {
                 await _accountService.DebitAccountAsync(fundTransferDto.AccountId, fundTransferDto.Amount);
 
+                if(fundTransferDto.AccountId == 2 && fundTransferDto.Amount < 300)
+                {
+                    await TransferFundToBanksAsync(fundTransferDto);
+                }
+
                 var transaction = new Transaction
                 {
                     TransactionReference = GenerateTransactionRef(),
@@ -87,6 +97,47 @@ namespace ChatBot.Services
 			}
 		}
 
+        public async Task<bool> TransferFundToBanksAsync(FundTransferDto fundTransferDto)
+        {
+            var baseUrl = Env.GetString("FLW_BASE_URL");
+            var secret = Env.GetString("FLW_SECRET_KEY");
+
+            HttpClient client = new HttpClient();
+
+            HttpRequestMessage request = new HttpRequestMessage(
+                HttpMethod.Post, baseUrl);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", secret);
+
+            var reference = Guid.NewGuid();
+
+            request.Content = new StringContent(
+                JsonConvert.SerializeObject(
+                    new
+                    {
+                        account_bank = fundTransferDto.RecipientBankCode,
+                        account_number = fundTransferDto.RecipientAccountNumber,
+                        amount = fundTransferDto.Amount,
+                        narration = fundTransferDto.Narration,
+                        currency = "NGN",
+                        debit_currency = "NGN",
+                        reference
+                    }),
+                    Encoding.UTF8,
+                    "application/json");
+
+            var response = await client.SendAsync(request);
+            string status = String.Empty;
+
+            if (response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                status = JsonConvert.DeserializeObject<ResponseData>(body).status;
+            }
+
+            return status == "success";
+        }
+
         private static string GenerateTransactionRef()
         {
             string prefix = "TRX";
@@ -95,6 +146,12 @@ namespace ChatBot.Services
 
             return $"{prefix}{timestampPart}{randomPart}";
         }
+    }
+
+    public class ResponseData
+    {
+        public string status { get; set; }
+        public string message { get; set; }
     }
 }
 

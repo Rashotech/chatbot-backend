@@ -281,7 +281,7 @@ namespace ChatBot.Dialogs
             {
                 AccountId = account.Id,
                 Amount = amount,
-                Narration = $"Transfer To {recipient.RecipientName} - {narration}",
+                Narration = $"Crowl Chatbot Fund Transfer To {recipient.RecipientName} - {narration}",
                 RecipientAccountNumber = recipient.RecipientAccountNumber,
                 RecipientBankCode = bank.code,
                 RecipientName = recipient.RecipientName,
